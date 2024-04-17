@@ -231,9 +231,31 @@ namespace Rong
             count++;
         }
 
+        auto pop_back() -> ElementType
+        {
+            if (count == 0)
+                throw Exception<LOGICAL>("Popping an empty list.");
+
+            auto popped = move(data[count - 1]);
+            count--;
+            return popped;
+        }
+
+        auto pop_front() -> ElementType
+        {
+            if (count == 0)
+                throw Exception<LOGICAL>("Popping an empty list.");
+
+            auto popped = move(data[0]);
+            for (U i = 0; i < count - 1; i++)
+                data[i] = move(data[i + 1]);
+            count--;
+            return popped;
+        }
+
         auto set(U p_index, const ElementType &p_thing) -> void
         {
-            if (p_index >= p_list.get_count())
+            if (p_index >= count)
                 throw Exception<LOGICAL>("Given index is beyond list's element count.");
             data[p_index] = p_thing;
         }
