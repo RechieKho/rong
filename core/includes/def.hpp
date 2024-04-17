@@ -77,7 +77,7 @@ namespace Rong
     template <class T>
     concept IsDefaultAvailable = requires {
         {
-            T::make_default()
+            T()
         } -> IsSame<T>;
     };
 

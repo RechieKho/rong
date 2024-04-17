@@ -21,7 +21,7 @@ namespace Rong
     concept IsAccessibleList = IsList<T> && IsCountAccessible<T> && IsDataAccessible<T, typename T::ElementType>;
 
     template <IsList T>
-    constexpr auto slice(const T &p_list, U p_begin_index, U p_end_index) -> T
+    constexpr auto slice(const T &p_list, U p_begin_index, U p_end_index) -> ListView<typename T::ElementType>
     {
         if (p_begin_index >= p_list.get_count())
             throw Exception<LOGICAL>("Given begin index beyond list's element count.");
@@ -30,12 +30,12 @@ namespace Rong
         if (p_begin_index > p_end_index)
             throw Exception<LOGICAL>("Begin index is larger than end index.");
         if (p_begin_index == p_end_index)
-            return T::make_default();
+            return ListView<typename T::ElementType>();
 
         auto new_count = p_end_index - p_begin_index;
         auto new_data = p_list.view_data() + p_begin_index;
 
-        return T(new_data, new_count);
+        return ListView<typename T::ElementType>(new_data, new_count);
     }
 
     template <IsList T>
@@ -77,8 +77,6 @@ namespace Rong
         U count;
 
     public:
-        static constexpr auto make_default() -> ListView { return ListView(); }
-
         constexpr ListView(const ElementType *p_data, U p_count) noexcept : data(p_data), count(p_count) {}
         constexpr ListView() noexcept : data(nullptr), count(0) {}
 
@@ -108,8 +106,6 @@ namespace Rong
         U capacity;
 
     public:
-        static constexpr auto make_default() -> List { return List(); }
-
         constexpr List() noexcept : data(nullptr), count(0), capacity(0) {}
 
         constexpr auto view_data() const noexcept -> const ElementType * { return data; }
@@ -119,7 +115,7 @@ namespace Rong
         operator ListView<T>() const { return ListView<T>(data, count); }
         constexpr auto operator[](U p_index) const -> const ElementType & { return Rong::view_element(*this, p_index); }
 
-        constexpr auto slice(U p_begin_index, U p_end_index) const -> ListView<T> { return Rong::slice(ListView<T>(*this), p_begin_index, p_end_index); }
+        constexpr auto slice(U p_begin_index, U p_end_index) const -> ListView<T> { return Rong::slice(*this, p_begin_index, p_end_index); }
         constexpr auto contains(const ElementType &p_thing) const -> B { return Rong::contains(*this, p_thing); }
 
         template <class C>
