@@ -95,6 +95,24 @@ namespace Rong
         return result;
     }
 
+    template <IsList T, IsList V>
+        requires IsSame<typename T::ElementType, typename V::ElementType>
+    auto list_concat(const T &p_left, const V &p_right) -> List<typename T::ElementType>
+    {
+        auto result = List<typename T::ElementType>();
+        result.reserve(p_left.get_count() + p_right.get_count());
+
+        auto data_left = p_left.view_data();
+        for (U i = 0; i < p_left.get_count(); i++)
+            result.append(data_left[i]);
+
+        auto data_right = p_right.view_data();
+        for (U i = 0; i < p_right.get_count(); i++)
+            result.append(data_right[i]);
+
+        return result;
+    }
+
     template <class T>
     class ListView
     {
@@ -124,6 +142,8 @@ namespace Rong
         auto map(const C &p_callable) const -> List<R> { return Rong::list_map<R>(*this, p_callable); }
         template <class C>
         auto filter(const C &p_callable) const -> List<ElementType> { return Rong::list_filter(*this, p_callable); }
+        template <class V>
+        auto concat(const V &p_list) const -> List<ElementType> { return Rong::list_concat(*this, p_list); }
     };
 
     template <class T>
@@ -157,6 +177,8 @@ namespace Rong
         auto map(const C &p_callable) const -> List<R> { return Rong::list_map<R>(*this, p_callable); }
         template <class C>
         auto filter(const C &p_callable) const -> List<ElementType> { return Rong::list_filter(*this, p_callable); }
+        template <class V>
+        auto concat(const V &p_list) const -> List<ElementType> { return Rong::list_concat(*this, p_list); }
 
         List(const ElementType *p_data, U p_count) : data(nullptr), count(0), capacity(0)
         {

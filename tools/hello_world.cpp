@@ -28,4 +28,11 @@ int main()
     filtered.for_each([](const C &c)
                       { fputc(c, stdout); });
     fputc('\n', stdout);
+
+    constexpr auto hello = ListView<C>("Hello", 5);
+    constexpr auto world = ListView<C>("world", 5);
+
+    hello.concat(world).for_each([](const C &c)
+                                 { fputc(c, stdout); });
+    fputc('\n', stdout);
 }
