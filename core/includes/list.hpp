@@ -86,9 +86,9 @@ namespace Rong
         constexpr auto get_count() const noexcept -> U { return count; }
 
         operator List<T>() const { return List<T>(data, count); }
+        constexpr auto operator[](U p_index) const -> const ElementType & { return Rong::view_element(*this, p_index); }
 
         constexpr auto slice(U p_begin_index, U p_end_index) const -> ListView { return Rong::slice(*this, p_begin_index, p_end_index); }
-        constexpr auto view_element(U p_index) const -> const ElementType & { return Rong::view_element(*this, p_index); }
         constexpr auto contains(const ElementType &p_thing) const -> B { return Rong::contains(*this, p_thing); }
 
         template <class C>
@@ -117,9 +117,9 @@ namespace Rong
         constexpr auto get_capacity() const noexcept -> U { return capacity; }
 
         operator ListView<T>() const { return ListView<T>(data, count); }
+        constexpr auto operator[](U p_index) const -> const ElementType & { return Rong::view_element(*this, p_index); }
 
         constexpr auto slice(U p_begin_index, U p_end_index) const -> ListView<T> { return Rong::slice(ListView<T>(*this), p_begin_index, p_end_index); }
-        constexpr auto view_element(U p_index) const -> const ElementType & { return Rong::view_element(*this, p_index); }
         constexpr auto contains(const ElementType &p_thing) const -> B { return Rong::contains(*this, p_thing); }
 
         template <class C>
