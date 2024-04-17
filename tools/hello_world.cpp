@@ -22,4 +22,10 @@ int main()
     mapped.for_each([](const C &c)
                     { fputc(c, stdout); });
     fputc('\n', stdout);
+
+    auto filtered = view.filter([](const C &c)
+                                { return c != 'l'; });
+    filtered.for_each([](const C &c)
+                      { fputc(c, stdout); });
+    fputc('\n', stdout);
 }

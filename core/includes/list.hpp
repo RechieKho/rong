@@ -80,6 +80,21 @@ namespace Rong
         return result;
     }
 
+    template <IsList T, class C>
+        requires IsCallable<B, C, const typename T::ElementType &>
+    auto filter(const T &p_list, const C &p_callable) -> List<typename T::ElementType>
+    {
+        auto result = List<typename T::ElementType>();
+        result.reserve(p_list.get_count());
+
+        auto data = p_list.view_data();
+        for (U i = 0; i < p_list.get_count(); i++)
+            if (p_callable(data[i]))
+                result.append(data[i]);
+
+        return result;
+    }
+
     template <class T>
     class ListView
     {
@@ -107,6 +122,8 @@ namespace Rong
         auto for_each(const C &p_callable) const -> void { Rong::for_each(*this, p_callable); }
         template <class R, class C>
         auto map(const C &p_callable) const -> List<R> { return Rong::map<R>(*this, p_callable); }
+        template <class C>
+        auto filter(const C &p_callable) const -> List<ElementType> { return Rong::filter(*this, p_callable); }
     };
 
     template <class T>
@@ -138,6 +155,8 @@ namespace Rong
         auto for_each(const C &p_callable) const -> void { Rong::for_each(*this, p_callable); }
         template <class R, class C>
         auto map(const C &p_callable) const -> List<R> { return Rong::map<R>(*this, p_callable); }
+        template <class C>
+        auto filter(const C &p_callable) const -> List<ElementType> { return Rong::filter(*this, p_callable); }
 
         List(const ElementType *p_data, U p_count) : data(nullptr), count(0), capacity(0)
         {
