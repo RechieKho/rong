@@ -130,7 +130,7 @@ namespace Rong
         constexpr auto view_data() const noexcept -> const ElementType * { return data; }
         constexpr auto get_count() const noexcept -> U { return count; }
 
-        operator List<T>() const { return List<T>(data, count); }
+        operator List<ElementType>() const { return List<ElementType>(data, count); }
         constexpr auto operator[](U p_index) const -> const ElementType & { return Rong::list_view_element(*this, p_index); }
 
         constexpr auto slice(U p_begin_index, U p_end_index) const -> ListView { return Rong::list_slice(*this, p_begin_index, p_end_index); }
@@ -165,10 +165,10 @@ namespace Rong
         constexpr auto get_count() const noexcept -> U { return count; }
         constexpr auto get_capacity() const noexcept -> U { return capacity; }
 
-        operator ListView<T>() const { return ListView<T>(data, count); }
+        operator ListView<ElementType>() const { return ListView<ElementType>(data, count); }
         constexpr auto operator[](U p_index) const -> const ElementType & { return Rong::list_view_element(*this, p_index); }
 
-        constexpr auto slice(U p_begin_index, U p_end_index) const -> ListView<T> { return Rong::list_slice(*this, p_begin_index, p_end_index); }
+        constexpr auto slice(U p_begin_index, U p_end_index) const -> ListView<ElementType> { return Rong::list_slice(*this, p_begin_index, p_end_index); }
         constexpr auto contains(const ElementType &p_thing) const -> B { return Rong::list_contains(*this, p_thing); }
 
         template <class C>
@@ -188,7 +188,7 @@ namespace Rong
             count = p_count;
         }
 
-        List(const List<T> &p_list) : data(nullptr), count(0), capacity(0)
+        List(const List<ElementType> &p_list) : data(nullptr), count(0), capacity(0)
         {
             reserve(p_list.count);
             for (U i = 0; i < p_list.count; i++)
@@ -196,7 +196,7 @@ namespace Rong
             count = p_list.count;
         }
 
-        List(List<T> &&p_list) : data(p_list.data), count(p_list.count), capacity(p_list.capacity)
+        List(List<ElementType> &&p_list) : data(p_list.data), count(p_list.count), capacity(p_list.capacity)
         {
             p_list.data = nullptr;
             p_list.count = 0;
