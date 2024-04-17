@@ -66,6 +66,20 @@ namespace Rong
             p_callable(data[i]);
     }
 
+    template <class R, IsList T, class C>
+        requires IsCallable<R, C, const typename T::ElementType &>
+    auto map(const T &p_list, const C &p_callable) -> List<R>
+    {
+        auto result = List<R>();
+        result.reserve(p_list.get_count());
+
+        auto data = p_list.view_data();
+        for (U i = 0; i < p_list.get_count(); i++)
+            result.append(p_callable(data[i]));
+
+        return result;
+    }
+
     template <class T>
     class ListView
     {
@@ -91,6 +105,8 @@ namespace Rong
 
         template <class C>
         auto for_each(const C &p_callable) const -> void { Rong::for_each(*this, p_callable); }
+        template <class R, class C>
+        auto map(const C &p_callable) const -> List<R> { return Rong::map<R>(*this, p_callable); }
     };
 
     template <class T>
@@ -120,6 +136,8 @@ namespace Rong
 
         template <class C>
         auto for_each(const C &p_callable) const -> void { Rong::for_each(*this, p_callable); }
+        template <class R, class C>
+        auto map(const C &p_callable) const -> List<R> { return Rong::map<R>(*this, p_callable); }
 
         List(const ElementType *p_data, U p_count) : data(nullptr), count(0), capacity(0)
         {
@@ -182,6 +200,7 @@ namespace Rong
         {
             reserve(capacity + 1);
             data[count] = p_thing;
+            count++;
         }
 
         auto prepend(const ElementType &p_thing) -> void
@@ -190,6 +209,7 @@ namespace Rong
             for (U i = count; i > 1; i--)
                 data[i] = move(data[i - 1]);
             data[0] = p_thing;
+            count++;
         }
     };
 

@@ -16,4 +16,10 @@ int main()
     list.for_each([](const C &c)
                   { fputc(c, stdout); });
     fputc('\n', stdout);
+
+    auto mapped = list.map<C>([](const C &c)
+                              { return 'E'; });
+    mapped.for_each([](const C &c)
+                    { fputc(c, stdout); });
+    fputc('\n', stdout);
 }
