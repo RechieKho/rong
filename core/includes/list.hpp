@@ -21,7 +21,7 @@ namespace Rong
     concept IsAccessibleList = IsList<T> && IsCountAccessible<T> && IsDataAccessible<T, typename T::ElementType>;
 
     template <IsList T>
-    constexpr auto slice(const T &p_list, U p_begin_index, U p_end_index) -> ListView<typename T::ElementType>
+    constexpr auto list_slice(const T &p_list, U p_begin_index, U p_end_index) -> ListView<typename T::ElementType>
     {
         if (p_begin_index >= p_list.get_count())
             throw Exception<LOGICAL>("Given begin index beyond list's element count.");
@@ -39,7 +39,7 @@ namespace Rong
     }
 
     template <IsList T>
-    constexpr auto view_element(const T &p_list, U p_index) -> const T::ElementType &
+    constexpr auto list_view_element(const T &p_list, U p_index) -> const T::ElementType &
     {
         if (p_index >= p_list.get_count())
             throw Exception<LOGICAL>("Given index is beyond list's element count.");
@@ -48,7 +48,7 @@ namespace Rong
 
     template <IsList T>
         requires IsEqualAvailable<typename T::ElementType, typename T::ElementType>
-    constexpr auto contains(const T &p_list, const typename T::ElementType &p_thing) -> B
+    constexpr auto list_contains(const T &p_list, const typename T::ElementType &p_thing) -> B
     {
         auto data = p_list.view_data();
         for (U i = 0; i < p_list.get_count(); i++)
@@ -59,7 +59,7 @@ namespace Rong
 
     template <IsList T, class C>
         requires IsCallable<void, C, const typename T::ElementType &>
-    auto for_each(const T &p_list, const C &p_callable) -> void
+    auto list_for_each(const T &p_list, const C &p_callable) -> void
     {
         auto data = p_list.view_data();
         for (U i = 0; i < p_list.get_count(); i++)
@@ -68,7 +68,7 @@ namespace Rong
 
     template <class R, IsList T, class C>
         requires IsCallable<R, C, const typename T::ElementType &>
-    auto map(const T &p_list, const C &p_callable) -> List<R>
+    auto list_map(const T &p_list, const C &p_callable) -> List<R>
     {
         auto result = List<R>();
         result.reserve(p_list.get_count());
@@ -82,7 +82,7 @@ namespace Rong
 
     template <IsList T, class C>
         requires IsCallable<B, C, const typename T::ElementType &>
-    auto filter(const T &p_list, const C &p_callable) -> List<typename T::ElementType>
+    auto list_filter(const T &p_list, const C &p_callable) -> List<typename T::ElementType>
     {
         auto result = List<typename T::ElementType>();
         result.reserve(p_list.get_count());
@@ -113,17 +113,17 @@ namespace Rong
         constexpr auto get_count() const noexcept -> U { return count; }
 
         operator List<T>() const { return List<T>(data, count); }
-        constexpr auto operator[](U p_index) const -> const ElementType & { return Rong::view_element(*this, p_index); }
+        constexpr auto operator[](U p_index) const -> const ElementType & { return Rong::list_view_element(*this, p_index); }
 
-        constexpr auto slice(U p_begin_index, U p_end_index) const -> ListView { return Rong::slice(*this, p_begin_index, p_end_index); }
-        constexpr auto contains(const ElementType &p_thing) const -> B { return Rong::contains(*this, p_thing); }
+        constexpr auto slice(U p_begin_index, U p_end_index) const -> ListView { return Rong::list_slice(*this, p_begin_index, p_end_index); }
+        constexpr auto contains(const ElementType &p_thing) const -> B { return Rong::list_contains(*this, p_thing); }
 
         template <class C>
-        auto for_each(const C &p_callable) const -> void { Rong::for_each(*this, p_callable); }
+        auto for_each(const C &p_callable) const -> void { Rong::list_for_each(*this, p_callable); }
         template <class R, class C>
-        auto map(const C &p_callable) const -> List<R> { return Rong::map<R>(*this, p_callable); }
+        auto map(const C &p_callable) const -> List<R> { return Rong::list_map<R>(*this, p_callable); }
         template <class C>
-        auto filter(const C &p_callable) const -> List<ElementType> { return Rong::filter(*this, p_callable); }
+        auto filter(const C &p_callable) const -> List<ElementType> { return Rong::list_filter(*this, p_callable); }
     };
 
     template <class T>
@@ -146,17 +146,17 @@ namespace Rong
         constexpr auto get_capacity() const noexcept -> U { return capacity; }
 
         operator ListView<T>() const { return ListView<T>(data, count); }
-        constexpr auto operator[](U p_index) const -> const ElementType & { return Rong::view_element(*this, p_index); }
+        constexpr auto operator[](U p_index) const -> const ElementType & { return Rong::list_view_element(*this, p_index); }
 
-        constexpr auto slice(U p_begin_index, U p_end_index) const -> ListView<T> { return Rong::slice(*this, p_begin_index, p_end_index); }
-        constexpr auto contains(const ElementType &p_thing) const -> B { return Rong::contains(*this, p_thing); }
+        constexpr auto slice(U p_begin_index, U p_end_index) const -> ListView<T> { return Rong::list_slice(*this, p_begin_index, p_end_index); }
+        constexpr auto contains(const ElementType &p_thing) const -> B { return Rong::list_contains(*this, p_thing); }
 
         template <class C>
-        auto for_each(const C &p_callable) const -> void { Rong::for_each(*this, p_callable); }
+        auto for_each(const C &p_callable) const -> void { Rong::list_for_each(*this, p_callable); }
         template <class R, class C>
-        auto map(const C &p_callable) const -> List<R> { return Rong::map<R>(*this, p_callable); }
+        auto map(const C &p_callable) const -> List<R> { return Rong::list_map<R>(*this, p_callable); }
         template <class C>
-        auto filter(const C &p_callable) const -> List<ElementType> { return Rong::filter(*this, p_callable); }
+        auto filter(const C &p_callable) const -> List<ElementType> { return Rong::list_filter(*this, p_callable); }
 
         List(const ElementType *p_data, U p_count) : data(nullptr), count(0), capacity(0)
         {
