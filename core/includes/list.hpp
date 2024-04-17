@@ -230,6 +230,13 @@ namespace Rong
             data[0] = p_thing;
             count++;
         }
+
+        auto set(U p_index, const ElementType &p_thing) -> void
+        {
+            if (p_index >= p_list.get_count())
+                throw Exception<LOGICAL>("Given index is beyond list's element count.");
+            data[p_index] = p_thing;
+        }
     };
 
 } // namespace Rong
