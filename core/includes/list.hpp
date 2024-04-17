@@ -8,6 +8,11 @@
 
 namespace Rong
 {
+    template <class T>
+    class List;
+
+    template <class T>
+    class ListView;
 
     template <class T>
     concept IsList = IsElementTypeAccessbile<T> && IsConstructableFromSpan<T, typename T::ElementType> && IsDefaultAvailable<T> && IsCountAvailable<T> && IsDataAvailable<T, typename T::ElementType>;
@@ -60,9 +65,6 @@ namespace Rong
         for (U i = 0; i < p_list.get_count(); i++)
             p_callable(data[i]);
     }
-
-    template <class T>
-    class List;
 
     template <class T>
     class ListView
@@ -178,6 +180,20 @@ namespace Rong
                 delete[] data;
             capacity = 0;
             count = 0;
+        }
+
+        auto append(const ElementType &p_thing) -> void
+        {
+            reserve(capacity + 1);
+            data[count] = p_thing;
+        }
+
+        auto prepend(const ElementType &p_thing) -> void
+        {
+            reserve(capacity + 1);
+            for (U i = count; i > 1; i--)
+                data[i] = move(data[i - 1]);
+            data[0] = p_thing;
         }
     };
 
