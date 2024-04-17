@@ -15,7 +15,7 @@ namespace Rong
     class ListView;
 
     template <class T>
-    concept IsList = IsElementTypeAccessbile<T> && IsConstructableFromSpan<T, typename T::ElementType> && IsDefaultAvailable<T> && IsCountAvailable<T> && IsDataAvailable<T, typename T::ElementType>;
+    concept IsList = IsElementTypeAvailable<T> && IsConstructableFromSpan<T, typename T::ElementType> && IsDefaultAvailable<T> && IsCountAvailable<T> && IsDataAvailable<T, typename T::ElementType>;
 
     template <class T>
     concept IsAccessibleList = IsList<T> && IsCountAccessible<T> && IsDataAccessible<T, typename T::ElementType>;

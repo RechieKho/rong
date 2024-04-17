@@ -162,7 +162,7 @@ namespace Rong
     };
 
     template <class T>
-    concept IsElementTypeAccessbile = requires {
+    concept IsElementTypeAvailable = requires {
         typename T::ElementType;
     };
 
