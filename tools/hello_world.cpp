@@ -1,5 +1,13 @@
-#include<iostream>
+#include <list.hpp>
+#include <stdio.h>
 
-int main() {
-    std::cout << "Hello world." << std::endl;
+using namespace Rong;
+
+int main()
+{
+    constexpr auto view = ListView<C>("Hello world", 11);
+    constexpr auto sliced = view.slice(2, 6);
+    view.for_each([](const C &c)
+                  { fputc(c, stdout); });
+    fputc('\n', stdout);
 }

@@ -2,3 +2,6 @@ build/
 
 *.local
 **/*.local
+
+compile_commands.json
+.vscode/
