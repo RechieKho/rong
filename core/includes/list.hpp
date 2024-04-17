@@ -161,15 +161,15 @@ namespace Rong
     public:
         constexpr List() noexcept : data(nullptr), count(0), capacity(0) {}
 
-        constexpr auto view_data() const noexcept -> const ElementType * { return data; }
-        constexpr auto get_count() const noexcept -> U { return count; }
-        constexpr auto get_capacity() const noexcept -> U { return capacity; }
+        inline auto view_data() const noexcept -> const ElementType * { return data; }
+        inline auto get_count() const noexcept -> U { return count; }
+        inline auto get_capacity() const noexcept -> U { return capacity; }
 
         operator ListView<ElementType>() const { return ListView<ElementType>(data, count); }
-        constexpr auto operator[](U p_index) const -> const ElementType & { return Rong::list_view_element(*this, p_index); }
+        inline auto operator[](U p_index) const -> const ElementType & { return Rong::list_view_element(*this, p_index); }
 
-        constexpr auto slice(U p_begin_index, U p_end_index) const -> ListView<ElementType> { return Rong::list_slice(*this, p_begin_index, p_end_index); }
-        constexpr auto contains(const ElementType &p_thing) const -> B { return Rong::list_contains(*this, p_thing); }
+        inline auto slice(U p_begin_index, U p_end_index) const -> ListView<ElementType> { return Rong::list_slice(*this, p_begin_index, p_end_index); }
+        inline auto contains(const ElementType &p_thing) const -> B { return Rong::list_contains(*this, p_thing); }
 
         template <class C>
         auto for_each(const C &p_callable) const -> void { Rong::list_for_each(*this, p_callable); }
