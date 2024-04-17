@@ -9,16 +9,16 @@
 namespace Rong
 {
     template <class T>
-    class List;
-
-    template <class T>
-    class ListView;
-
-    template <class T>
     concept IsList = IsElementTypeAvailable<T> && IsConstructableFromSpan<T, typename T::ElementType> && IsDefaultAvailable<T> && IsCountAvailable<T> && IsDataAvailable<T, typename T::ElementType>;
 
     template <class T>
     concept IsAccessibleList = IsList<T> && IsCountAccessible<T> && IsDataAccessible<T, typename T::ElementType>;
+
+    template <class T>
+    class List;
+
+    template <class T>
+    class ListView;
 
     template <IsList T>
     constexpr auto list_slice(const T &p_list, U p_begin_index, U p_end_index) -> ListView<typename T::ElementType>
@@ -58,7 +58,7 @@ namespace Rong
     }
 
     template <IsList T, class C>
-        requires IsCallable<void, C, const typename T::ElementType &>
+        requires IsFunction<void, C, const typename T::ElementType &>
     auto list_for_each(const T &p_list, const C &p_callable) -> void
     {
         auto data = p_list.view_data();
@@ -67,7 +67,7 @@ namespace Rong
     }
 
     template <class R, IsList T, class C>
-        requires IsCallable<R, C, const typename T::ElementType &>
+        requires IsFunction<R, C, const typename T::ElementType &>
     auto list_map(const T &p_list, const C &p_callable) -> List<R>
     {
         auto result = List<R>();
@@ -81,7 +81,7 @@ namespace Rong
     }
 
     template <IsList T, class C>
-        requires IsCallable<B, C, const typename T::ElementType &>
+        requires IsFunction<B, C, const typename T::ElementType &>
     auto list_filter(const T &p_list, const C &p_callable) -> List<typename T::ElementType>
     {
         auto result = List<typename T::ElementType>();
