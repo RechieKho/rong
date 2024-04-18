@@ -299,15 +299,39 @@ namespace Rong
         }
     };
 
-    static_assert(IsListFeaturesAvailable<List<X>>, "`List` features are malformed.");
     static_assert(IsListFeaturesAvailable<ListView<X>>, "`ListView` features are malformed.");
-
-    static_assert(IsForEachAvailable<List<X>, Function<void, List<X>::KeyType, List<X>::ValueType>>, "`List::for_each` is malformed.");
+    static_assert(IsEqualAvailable<ListView<X>, List<X>>, "`ListView::operator==` is malformed.");
+    static_assert(IsEqualAvailable<ListView<X>, ListView<X>>, "`ListView::operator==` is malformed.");
+    static_assert(IsSliceAvailable<ListView<X>, ListView<X>>, "`ListView::slice` is malformed.");
+    static_assert(IsIndexAvailable<ListView<X>>, "`ListView::operator[]` is malformed.");
+    static_assert(IsContainsAvailable<ListView<X>>, "`ListView::contains` is malformed.");
     static_assert(IsForEachAvailable<ListView<X>, Function<void, List<X>::KeyType, List<X>::ValueType>>, "`ListView::for_each` is malformed.");
-    static_assert(IsMapAvailable<Y, List<X>, Function<Y, List<X>::KeyType, List<X>::ValueType>, List<Y>>, "`List::map` is malformed.");
     static_assert(IsMapAvailable<Y, ListView<X>, Function<Y, ListView<X>::KeyType, ListView<X>::ValueType>, List<Y>>, "`ListView::map` is malformed.");
-    static_assert(IsFilterAvailable<List<X>, Function<B, List<X>::KeyType, List<X>::ValueType>>, "`List::filter` is malformed.");
     static_assert(IsFilterAvailable<ListView<X>, Function<B, ListView<X>::KeyType, ListView<X>::ValueType>, List<X>>, "`ListView::filter` is malformed.");
+    static_assert(IsConcatAvailable<ListView<X>, List<X>, List<X>>, "`ListView::concat` is malformed.");
+    static_assert(IsConcatAvailable<ListView<X>, ListView<X>, List<X>>, "`ListView::concat` is malformed.");
+
+    static_assert(IsListFeaturesAvailable<List<X>>, "`List` features are malformed.");
+    static_assert(IsEqualAvailable<List<X>, List<X>>, "`List::operator==` is malformed.");
+    static_assert(IsEqualAvailable<List<X>, ListView<X>>, "`List::operator==` is malformed.");
+    static_assert(IsSliceAvailable<List<X>, ListView<X>>, "`List::slice` is malformed.");
+    static_assert(IsIndexAvailable<List<X>>, "`List::operator[]` is malformed.");
+    static_assert(IsContainsAvailable<List<X>>, "`List::contains` is malformed.");
+    static_assert(IsForEachAvailable<List<X>, Function<void, List<X>::KeyType, List<X>::ValueType>>, "`List::for_each` is malformed.");
+    static_assert(IsMapAvailable<Y, List<X>, Function<Y, List<X>::KeyType, List<X>::ValueType>, List<Y>>, "`List::map` is malformed.");
+    static_assert(IsFilterAvailable<List<X>, Function<B, List<X>::KeyType, List<X>::ValueType>>, "`List::filter` is malformed.");
+    static_assert(IsConcatAvailable<List<X>>, "`List::concat` is malformed.");
+    static_assert(IsConcatAvailable<List<X>, ListView<X>>, "`List::concat` is malformed.");
+    static_assert(IsCapacityAvailable<List<X>>, "`List::get_capacity` is malformed.");
+    static_assert(IsReserveAvailable<List<X>>, "`List::reserve` is malformed.");
+    static_assert(IsCleanAvailable<List<X>>, "`List::clean` is malformed.");
+    static_assert(IsInsertAvailable<List<X>>, "`List::insert` is malformed.");
+    static_assert(IsAppendAvailable<List<X>>, "`List::append` is malformed.");
+    static_assert(IsPrependAvailable<List<X>>, "`List::prepend` is malformed.");
+    static_assert(IsRemoveAvailable<List<X>>, "`List::remove` is malformed.");
+    static_assert(IsPopBackAvailable<List<X>>, "`List::pop_back` is malformed.");
+    static_assert(IsPopFrontAvailable<List<X>>, "`List::pop_front` is malformed.");
+    static_assert(IsSetAvailable<List<X>>, "`List::set` is malformed.");
 
 } // namespace Rong
 

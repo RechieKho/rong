@@ -201,10 +201,10 @@ namespace Rong
     concept IsIndexAvailable = IsKeyTypeAvailable<T> && IsValueTypeAvailable<T> && requires(const T &p_object, const T::KeyType &p_index) {
         {
             p_object[p_index]
-        } -> IsSame<typename T::ValueType>;
+        } -> IsSame<const typename T::ValueType &>;
     };
 
-    template <class T, class V>
+    template <class T>
     concept IsContainsAvailable = IsValueTypeAvailable<T> && requires(const T &p_object, const T::ValueType &p_thing) {
         {
             p_object.contains(p_thing)
@@ -265,14 +265,14 @@ namespace Rong
     };
 
     template <class T>
-    concept IsReserveAvailable = requires(const T &p_object, U p_min_capacity) {
+    concept IsReserveAvailable = requires(T p_object, U p_min_capacity) {
         {
             p_object.reserve(p_min_capacity)
         } -> IsSame<void>;
     };
 
     template <class T>
-    concept IsCleanAvailable = requires(const T &p_object) {
+    concept IsCleanAvailable = requires(T p_object) {
         {
             p_object.clean()
         } -> IsSame<void>;
@@ -282,7 +282,7 @@ namespace Rong
     concept IsInsertAvailable =
         IsKeyTypeAvailable<T> &&
         IsValueTypeAvailable<T> &&
-        requires(const T &p_object, const T::KeyType &p_key, const T::ValueType &p_value) {
+        requires(T p_object, const T::KeyType &p_key, const T::ValueType &p_value) {
             {
                 p_object.insert(p_key, p_value)
             } -> IsSame<void>;
@@ -291,7 +291,7 @@ namespace Rong
     template <class T>
     concept IsAppendAvailable =
         IsValueTypeAvailable<T> &&
-        requires(const T &p_object, const T::ValueType &p_value) {
+        requires(T p_object, const T::ValueType &p_value) {
             {
                 p_object.append(p_value)
             } -> IsSame<void>;
@@ -300,7 +300,7 @@ namespace Rong
     template <class T>
     concept IsPrependAvailable =
         IsValueTypeAvailable<T> &&
-        requires(const T &p_object, const T::ValueType &p_value) {
+        requires(T p_object, const T::ValueType &p_value) {
             {
                 p_object.prepend(p_value)
             } -> IsSame<void>;
@@ -310,7 +310,7 @@ namespace Rong
     concept IsRemoveAvailable =
         IsKeyTypeAvailable<T> &&
         IsValueTypeAvailable<T> &&
-        requires(const T &p_object, const T::KeyType &p_key) {
+        requires(T p_object, const T::KeyType &p_key) {
             {
                 p_object.remove(p_key)
             } -> IsSame<typename T::ValueType>;
@@ -319,7 +319,7 @@ namespace Rong
     template <class T>
     concept IsPopBackAvailable =
         IsValueTypeAvailable<T> &&
-        requires(const T &p_object) {
+        requires(T p_object) {
             {
                 p_object.pop_back()
             } -> IsSame<typename T::ValueType>;
@@ -328,7 +328,7 @@ namespace Rong
     template <class T>
     concept IsPopFrontAvailable =
         IsValueTypeAvailable<T> &&
-        requires(const T &p_object) {
+        requires(T p_object) {
             {
                 p_object.pop_front()
             } -> IsSame<typename T::ValueType>;
@@ -338,7 +338,7 @@ namespace Rong
     concept IsSetAvailable =
         IsKeyTypeAvailable<T> &&
         IsValueTypeAvailable<T> &&
-        requires(const T &p_object, const T::KeyType &p_key, const T::ValueType &p_value) {
+        requires(T p_object, const T::KeyType &p_key, const T::ValueType &p_value) {
             {
                 p_object.set(p_key, p_value)
             } -> IsSame<void>;
