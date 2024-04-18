@@ -88,86 +88,6 @@ namespace Rong
         } -> IsSame<To>;
     };
 
-    template <class T>
-    concept IsDefaultAvailable = requires {
-        {
-            T()
-        } -> IsSame<T>;
-    };
-
-    template <class T>
-    concept IsCountAccessible = requires(const T &p_object) {
-        {
-            p_object.count
-        } -> IsSame<U>;
-    };
-
-    template <class T>
-    concept IsCountAvailable = requires(const T &p_object) {
-        {
-            p_object.get_count()
-        } -> IsSame<U>;
-    };
-
-    template <class T, class E>
-    concept IsDataAccessible = requires(const T &p_object) {
-        {
-            p_object.data
-        } -> IsSame<E *>;
-    };
-
-    template <class T, class E>
-    concept IsDataAvailable = requires(const T &p_object) {
-        {
-            p_object.view_data()
-        } -> IsSame<const E *>;
-    };
-
-    template <class T, class E>
-    concept IsConstructableFromSpan = requires(E *p_pointer, U p_count) {
-        {
-            T(p_pointer, p_count)
-        } -> IsSame<T>;
-    };
-
-    template <class T, class V>
-    concept IsEqualAvailable = requires(const T &p_left, const V &p_right) {
-        {
-            p_left == p_right
-        } -> IsSame<B>;
-    };
-
-    template <class T, class V>
-    concept IsGreaterAvailable = requires(const T &p_left, const V &p_right) {
-        {
-            p_left > p_right
-        } -> IsSame<B>;
-    };
-
-    template <class T, class V>
-    concept IsGreaterEqualAvailable = requires(const T &p_left, const V &p_right) {
-        {
-            p_left >= p_right
-        } -> IsSame<B>;
-    };
-
-    template <class T, class V>
-    concept IsLessAvailable = requires(const T &p_left, const V &p_right) {
-        {
-            p_left < p_right
-        } -> IsSame<B>;
-    };
-
-    template <class T, class V>
-    concept IsLessEqualAvailable = requires(const T &p_left, const V &p_right) {
-        {
-            p_left <= p_right
-        } -> IsSame<B>;
-    };
-
-    template <class T, class V>
-    concept IsComparable = IsEqualAvailable<T, V> && IsGreaterAvailable<T, V> && IsGreaterEqualAvailable<T, V> && IsLessAvailable<T, V> && IsLessEqualAvailable<T, V>;
-
     template <class R, class T, class... Args>
     concept IsFunction = requires(const T &p_object, Args... p_items) {
         {
@@ -190,50 +110,141 @@ namespace Rong
         typename T::KeyType;
     };
 
-    template <class T, class K>
-    concept IsSliceAvailable = requires(const T &p_object, const K &p_begin, const K &p_end) {
+    template <class T>
+    concept IsDefaultAvailable = requires {
         {
-            p_object.slice(p_begin, p_end)
+            T()
         } -> IsSame<T>;
     };
 
-    template <class T, class K, class E>
-    concept IsIndexAvailable = requires(const T &p_object, const K &p_index) {
+    template <class T>
+    concept IsCountAccessible = requires(const T &p_object) {
         {
-            p_object[p_index]
-        } -> IsSame<E>;
+            p_object.count
+        } -> IsSame<U>;
     };
 
-    template <class T, class E>
-    concept IsContainsAvailable = requires(const T &p_object, const E &p_thing) {
+    template <class T>
+    concept IsCountAvailable = requires(const T &p_object) {
+        {
+            p_object.get_count()
+        } -> IsSame<U>;
+    };
+
+    template <class T>
+    concept IsDataAccessible = IsElementTypeAvailable<T> && requires(const T &p_object) {
+        {
+            p_object.data
+        } -> IsSame<typename T::ElementType *>;
+    };
+
+    template <class T>
+    concept IsDataAvailable = IsElementTypeAvailable<T> && requires(const T &p_object) {
+        {
+            p_object.view_data()
+        } -> IsSame<const typename T::ElementType *>;
+    };
+
+    template <class T>
+    concept IsConstructableFromSpan = IsValueTypeAvailable<T> && requires(const T::ValueType *p_pointer, U p_count) {
+        {
+            T(p_pointer, p_count)
+        } -> IsSame<T>;
+    };
+
+    template <class T, class W>
+    concept IsEqualAvailable = requires(const T &p_left, const W &p_right) {
+        {
+            p_left == p_right
+        } -> IsSame<B>;
+    };
+
+    template <class T, class W>
+    concept IsGreaterAvailable = requires(const T &p_left, const W &p_right) {
+        {
+            p_left > p_right
+        } -> IsSame<B>;
+    };
+
+    template <class T, class W>
+    concept IsGreaterEqualAvailable = requires(const T &p_left, const W &p_right) {
+        {
+            p_left >= p_right
+        } -> IsSame<B>;
+    };
+
+    template <class T, class W>
+    concept IsLessAvailable = requires(const T &p_left, const W &p_right) {
+        {
+            p_left < p_right
+        } -> IsSame<B>;
+    };
+
+    template <class T, class W>
+    concept IsLessEqualAvailable = requires(const T &p_left, const W &p_right) {
+        {
+            p_left <= p_right
+        } -> IsSame<B>;
+    };
+
+    template <class T, class W>
+    concept IsComparable = IsEqualAvailable<T, W> && IsGreaterAvailable<T, W> && IsGreaterEqualAvailable<T, W> && IsLessAvailable<T, W> && IsLessEqualAvailable<T, W>;
+
+    template <class T, class W = T>
+    concept IsSliceAvailable = IsKeyTypeAvailable<T> && requires(const T &p_object, const T::KeyType &p_begin, const T::KeyType &p_end) {
+        {
+            p_object.slice(p_begin, p_end)
+        } -> IsSame<W>;
+    };
+
+    template <class T>
+    concept IsIndexAvailable = IsKeyTypeAvailable<T> && IsValueTypeAvailable<T> && requires(const T &p_object, const T::KeyType &p_index) {
+        {
+            p_object[p_index]
+        } -> IsSame<typename T::ValueType>;
+    };
+
+    template <class T, class V>
+    concept IsContainsAvailable = IsValueTypeAvailable<T> && requires(const T &p_object, const T::ValueType &p_thing) {
         {
             p_object.contains(p_thing)
         } -> IsSame<B>;
     };
 
-    template <class T, class L, class K, class E>
-    concept IsForEachAvailable = IsFunction<void, L, const K &, const E &> && requires(const T &p_object, const C &p_callable) {
-        {
-            p_object.for_each(p_callable)
-        } -> IsSame<void>;
-    };
+    template <class T, class L>
+    concept IsForEachAvailable =
+        IsKeyTypeAvailable<T> &&
+        IsValueTypeAvailable<T> &&
+        IsFunction<void, L, const typename T::KeyType &, const typename T::ValueType &> &&
+        requires(const T &p_object, const C &p_callable) {
+            {
+                p_object.for_each(p_callable)
+            } -> IsSame<void>;
+        };
 
-    template <class R, class T, class L, class K, class E, class V>
-    concept IsMapAvailable = IsFunction<R, L, const K &, const E &> && requires(const T &p_object, const C &p_callable) {
-        {
-            p_object.template map<R>(p_callable)
-        } -> IsSame<V>;
-    };
+    template <class R, class T, class L, class W = T>
+    concept IsMapAvailable =
+        IsKeyTypeAvailable<T> &&
+        IsValueTypeAvailable<T> &&
+        IsFunction<R, L, const typename T::KeyType &, const typename T::ValueType &> &&
+        requires(const T &p_object, const C &p_callable) {
+            {
+                p_object.template map<R>(p_callable)
+            } -> IsSame<W>;
+        };
 
-    template <class T, class L, class K, class E, class V>
-    concept IsFilterAvailable = IsFunction<bool, L, const K &, const E &> && requires(const T &p_object, const C &p_callable) {
-        {
-            p_object.filter(p_callable)
-        } -> IsSame<V>;
-    };
+    template <class T, class L>
+    concept IsFilterAvailable =
+        IsKeyTypeAvailable<T> &&
+        IsValueTypeAvailable<T> &&
+        IsFunction<bool, L, const typename T::KeyType &, const typename T::ValueType &> && requires(const T &p_object, const C &p_callable) {
+            {
+                p_object.filter(p_callable)
+            } -> IsSame<T>;
+        };
 
-    template <class T, class V, class R>
-    concept IsConcatAvailable = requires(const T &p_left, const V &p_right) {
+    template <class T, class W = T, class R = T>
+    concept IsConcatAvailable = requires(const T &p_left, const W &p_right) {
         {
             p_left.concat(p_right)
         } -> IsSame<R>;
@@ -267,54 +278,71 @@ namespace Rong
         } -> IsSame<void>;
     };
 
-    template <class T, class K, class E>
-    concept IsInsertAvailable = requires(const T &p_object, const K &p_key, const E &p_value) {
-        {
-            p_object.insert(p_key, p_value)
-        } -> IsSame<void>;
-    };
+    template <class T>
+    concept IsInsertAvailable =
+        IsKeyTypeAvailable<T> &&
+        IsValueTypeAvailable<T> &&
+        requires(const T &p_object, const T::KeyType &p_key, const T::ValueType &p_value) {
+            {
+                p_object.insert(p_key, p_value)
+            } -> IsSame<void>;
+        };
 
-    template <class T, class E>
-    concept IsAppendAvailable = requires(const T &p_object, const E &p_value) {
-        {
-            p_object.append(p_value)
-        } -> IsSame<void>;
-    };
+    template <class T>
+    concept IsAppendAvailable =
+        IsValueTypeAvailable<T> &&
+        requires(const T &p_object, const T::ValueType &p_value) {
+            {
+                p_object.append(p_value)
+            } -> IsSame<void>;
+        };
 
-    template <class T, class E>
-    concept IsPrependAvailable = requires(const T &p_object, const E &p_value) {
-        {
-            p_object.prepend(p_value)
-        } -> IsSame<void>;
-    };
+    template <class T>
+    concept IsPrependAvailable =
+        IsValueTypeAvailable<T> &&
+        requires(const T &p_object, const T::ValueType &p_value) {
+            {
+                p_object.prepend(p_value)
+            } -> IsSame<void>;
+        };
 
-    template <class T, class K, class E>
-    concept IsRemoveAvailable = requires(const T &p_object, const K &p_key) {
-        {
-            p_object.remove(p_key)
-        } -> IsSame<E>;
-    };
+    template <class T>
+    concept IsRemoveAvailable =
+        IsKeyTypeAvailable<T> &&
+        IsValueTypeAvailable<T> &&
+        requires(const T &p_object, const T::KeyType &p_key) {
+            {
+                p_object.remove(p_key)
+            } -> IsSame<typename T::ValueType>;
+        };
 
-    template <class T, class E>
-    concept IsPopBackAvailable = requires(const T &p_object) {
-        {
-            p_object.pop_back()
-        } -> IsSame<E>;
-    };
+    template <class T>
+    concept IsPopBackAvailable =
+        IsValueTypeAvailable<T> &&
+        requires(const T &p_object) {
+            {
+                p_object.pop_back()
+            } -> IsSame<typename T::ValueType>;
+        };
 
-    template <class T, class E>
-    concept IsPopFrontAvailable = requires(const T &p_object) {
-        {
-            p_object.pop_front()
-        } -> IsSame<E>;
-    };
+    template <class T>
+    concept IsPopFrontAvailable =
+        IsValueTypeAvailable<T> &&
+        requires(const T &p_object) {
+            {
+                p_object.pop_front()
+            } -> IsSame<typename T::ValueType>;
+        };
 
-    template <class T, class K, class E>
-    concept IsSetAvailable = requires(const T &p_object, const K &p_key, const E &p_value) {
-        {
-            p_object.set(p_key, p_value)
-        } -> IsSame<void>;
-    };
+    template <class T>
+    concept IsSetAvailable =
+        IsKeyTypeAvailable<T> &&
+        IsValueTypeAvailable<T> &&
+        requires(const T &p_object, const T::KeyType &p_key, const T::ValueType &p_value) {
+            {
+                p_object.set(p_key, p_value)
+            } -> IsSame<void>;
+        };
 
     template <class T>
     constexpr auto move(T &p_object) noexcept -> Referenceless<T>::Type { return static_cast<typename Referenceless<T>::Type &&>(p_object); }
