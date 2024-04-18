@@ -251,42 +251,50 @@ namespace Rong
             count = 0;
         }
 
+        auto insert(KeyType p_index, const ElementType &p_thing) -> void
+        {
+            if (p_index > count)
+                throw Exception<LOGICAL>("Given index is out of bound.");
+            reserve(capacity + 1);
+            for (U i = count; i > p_index + 1; i--)
+                data[i] = move(data[i - 1]);
+            data[p_index] = p_thing;
+            count++;
+        }
+
         auto append(const ElementType &p_thing) -> void
         {
-            reserve(capacity + 1);
-            data[count] = p_thing;
-            count++;
+            insert(count, p_thing);
         }
 
         auto prepend(const ElementType &p_thing) -> void
         {
-            reserve(capacity + 1);
-            for (U i = count; i > 1; i--)
-                data[i] = move(data[i - 1]);
-            data[0] = p_thing;
-            count++;
+            insert(0, p_thing);
+        }
+
+        auto remove(KeyType p_index) -> ElementType
+        {
+            if (p_index >= count)
+                throw Exception<LOGICAL>("Given index is out of bound.");
+
+            if (count == 0)
+                throw Exception<LOGICAL>("Impossible to remove item from empty list.");
+
+            auto popped = move(data[p_index]);
+            for (U i = p_index; i < count - 1; i++)
+                data[i] = move(data[i + 1]);
+            count--;
+            return popped;
         }
 
         auto pop_back() -> ElementType
         {
-            if (count == 0)
-                throw Exception<LOGICAL>("Popping an empty list.");
-
-            auto popped = move(data[count - 1]);
-            count--;
-            return popped;
+            return remove(count - 1);
         }
 
         auto pop_front() -> ElementType
         {
-            if (count == 0)
-                throw Exception<LOGICAL>("Popping an empty list.");
-
-            auto popped = move(data[0]);
-            for (U i = 0; i < count - 1; i++)
-                data[i] = move(data[i + 1]);
-            count--;
-            return popped;
+            return remove(0);
         }
 
         auto set(KeyType p_index, const ElementType &p_thing) -> void
