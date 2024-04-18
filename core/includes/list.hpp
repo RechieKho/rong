@@ -68,16 +68,16 @@ namespace Rong
     }
 
     template <IsListFeaturesAvailable T, class C>
-        requires IsFunction<void, C, const typename T::ElementType &>
+        requires IsFunction<void, C, typename T::KeyType, const typename T::ElementType &>
     auto list_for_each(const T &p_list, const C &p_callable) -> void
     {
         auto data = p_list.view_data();
         for (U i = 0; i < p_list.get_count(); i++)
-            p_callable(data[i]);
+            p_callable(i, data[i]);
     }
 
     template <class R, IsListFeaturesAvailable T, class C>
-        requires IsFunction<R, C, const typename T::ElementType &>
+        requires IsFunction<R, C, typename T::KeyType, const typename T::ElementType &>
     auto list_map(const T &p_list, const C &p_callable) -> List<R>
     {
         auto result = List<R>();
@@ -85,13 +85,13 @@ namespace Rong
 
         auto data = p_list.view_data();
         for (U i = 0; i < p_list.get_count(); i++)
-            result.append(p_callable(data[i]));
+            result.append(p_callable(i, data[i]));
 
         return result;
     }
 
     template <IsListFeaturesAvailable T, class C>
-        requires IsFunction<B, C, const typename T::ElementType &>
+        requires IsFunction<B, C, typename T::KeyType, const typename T::ElementType &>
     auto list_filter(const T &p_list, const C &p_callable) -> List<typename T::ElementType>
     {
         auto result = List<typename T::ElementType>();
@@ -99,7 +99,7 @@ namespace Rong
 
         auto data = p_list.view_data();
         for (U i = 0; i < p_list.get_count(); i++)
-            if (p_callable(data[i]))
+            if (p_callable(i, data[i]))
                 result.append(data[i]);
 
         return result;
