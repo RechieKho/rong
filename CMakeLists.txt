@@ -16,7 +16,11 @@ set(CMAKE_CXX_STANDARD 20)
 
 # Options.
 option(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+option(FEATURE_ASSERTION OFF)
+
+if(FEATURE_ASSERTION)
+add_compile_definitions(-DFEATURE_ASSERTION)
+endif(FEATURE_ASSERTION)
 
 enable_testing()
-
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core)

@@ -9,7 +9,7 @@
 namespace Rong
 {
     template <class T>
-    concept IsListFeaturesAvailable =
+    concept IsListBaseFeaturesAvailable =
         IsKeyTypeAvailable<T> &&
         IsValueTypeAvailable<T> &&
         IsElementTypeAvailable<T> &&
@@ -24,7 +24,7 @@ namespace Rong
     template <class T>
     class ListView;
 
-    template <IsListFeaturesAvailable T>
+    template <IsListBaseFeaturesAvailable T>
     constexpr auto list_slice(const T &p_list, const typename T::KeyType &p_begin_index, const typename T::KeyType &p_end_index) -> ListView<typename T::ValueType>
     {
         if (p_begin_index >= p_list.get_count())
@@ -42,7 +42,7 @@ namespace Rong
         return ListView<typename T::ValueType>(new_data, new_count);
     }
 
-    template <IsListFeaturesAvailable T>
+    template <IsListBaseFeaturesAvailable T>
     constexpr auto list_view_element(const T &p_list, const typename T::KeyType &p_index) -> const T::ValueType &
     {
         if (p_index >= p_list.get_count())
@@ -50,7 +50,7 @@ namespace Rong
         return p_list.view_data()[p_index];
     }
 
-    template <IsListFeaturesAvailable T>
+    template <IsListBaseFeaturesAvailable T>
         requires IsEqualAvailable<typename T::ValueType, typename T::ValueType>
     constexpr auto list_contains(const T &p_list, const typename T::ValueType &p_thing) -> B
     {
@@ -61,7 +61,7 @@ namespace Rong
         return false;
     }
 
-    template <IsListFeaturesAvailable T, class C>
+    template <IsListBaseFeaturesAvailable T, class C>
         requires IsFunction<void, C, const typename T::KeyType &, const typename T::ValueType &>
     auto list_for_each(const T &p_list, const C &p_callable) -> void
     {
@@ -70,7 +70,7 @@ namespace Rong
             p_callable(i, data[i]);
     }
 
-    template <class R, IsListFeaturesAvailable T, class C>
+    template <class R, IsListBaseFeaturesAvailable T, class C>
         requires IsFunction<R, C, const typename T::KeyType &, const typename T::ValueType &>
     auto list_map(const T &p_list, const C &p_callable) -> List<R>
     {
@@ -84,7 +84,7 @@ namespace Rong
         return result;
     }
 
-    template <IsListFeaturesAvailable T, class C>
+    template <IsListBaseFeaturesAvailable T, class C>
         requires IsFunction<B, C, const typename T::KeyType &, const typename T::ValueType &>
     auto list_filter(const T &p_list, const C &p_callable) -> List<typename T::ValueType>
     {
@@ -99,7 +99,7 @@ namespace Rong
         return result;
     }
 
-    template <IsListFeaturesAvailable T, IsListFeaturesAvailable V>
+    template <IsListBaseFeaturesAvailable T, IsListBaseFeaturesAvailable V>
         requires IsSame<typename T::ValueType, typename V::ValueType>
     auto list_concat(const T &p_left, const V &p_right) -> List<typename T::ValueType>
     {
@@ -299,7 +299,8 @@ namespace Rong
         }
     };
 
-    static_assert(IsListFeaturesAvailable<ListView<X>>, "`ListView` features are malformed.");
+#ifdef FEATURE_ASSERTION
+    static_assert(IsListBaseFeaturesAvailable<ListView<X>>, "`ListView` features are malformed.");
     static_assert(IsEqualAvailable<ListView<X>, List<X>>, "`ListView::operator==` is malformed.");
     static_assert(IsEqualAvailable<ListView<X>, ListView<X>>, "`ListView::operator==` is malformed.");
     static_assert(IsSliceAvailable<ListView<X>, ListView<X>>, "`ListView::slice` is malformed.");
@@ -311,7 +312,7 @@ namespace Rong
     static_assert(IsConcatAvailable<ListView<X>, List<X>, List<X>>, "`ListView::concat` is malformed.");
     static_assert(IsConcatAvailable<ListView<X>, ListView<X>, List<X>>, "`ListView::concat` is malformed.");
 
-    static_assert(IsListFeaturesAvailable<List<X>>, "`List` features are malformed.");
+    static_assert(IsListBaseFeaturesAvailable<List<X>>, "`List` features are malformed.");
     static_assert(IsEqualAvailable<List<X>, List<X>>, "`List::operator==` is malformed.");
     static_assert(IsEqualAvailable<List<X>, ListView<X>>, "`List::operator==` is malformed.");
     static_assert(IsSliceAvailable<List<X>, ListView<X>>, "`List::slice` is malformed.");
@@ -332,6 +333,7 @@ namespace Rong
     static_assert(IsPopBackAvailable<List<X>>, "`List::pop_back` is malformed.");
     static_assert(IsPopFrontAvailable<List<X>>, "`List::pop_front` is malformed.");
     static_assert(IsSetAvailable<List<X>>, "`List::set` is malformed.");
+#endif // FEATURE_ASSERTION
 
 } // namespace Rong
 
