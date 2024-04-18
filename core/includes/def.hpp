@@ -233,14 +233,14 @@ namespace Rong
             } -> IsSame<W>;
         };
 
-    template <class T, class L>
+    template <class T, class L, class W = T>
     concept IsFilterAvailable =
         IsKeyTypeAvailable<T> &&
         IsValueTypeAvailable<T> &&
-        IsFunction<bool, L, const typename T::KeyType &, const typename T::ValueType &> && requires(const T &p_object, const C &p_callable) {
+        IsFunction<B, L, const typename T::KeyType &, const typename T::ValueType &> && requires(const T &p_object, const C &p_callable) {
             {
                 p_object.filter(p_callable)
-            } -> IsSame<T>;
+            } -> IsSame<W>;
         };
 
     template <class T, class W = T, class R = T>

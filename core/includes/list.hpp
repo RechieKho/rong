@@ -299,8 +299,15 @@ namespace Rong
         }
     };
 
-    static_assert(IsListFeaturesAvailable<List<X>>, "List features are malformed.");
-    static_assert(IsListFeaturesAvailable<ListView<X>>, "List features are malformed.");
+    static_assert(IsListFeaturesAvailable<List<X>>, "`List` features are malformed.");
+    static_assert(IsListFeaturesAvailable<ListView<X>>, "`ListView` features are malformed.");
+
+    static_assert(IsForEachAvailable<List<X>, Function<void, List<X>::KeyType, List<X>::ValueType>>, "`List::for_each` is malformed.");
+    static_assert(IsForEachAvailable<ListView<X>, Function<void, List<X>::KeyType, List<X>::ValueType>>, "`ListView::for_each` is malformed.");
+    static_assert(IsMapAvailable<Y, List<X>, Function<Y, List<X>::KeyType, List<X>::ValueType>, List<Y>>, "`List::map` is malformed.");
+    static_assert(IsMapAvailable<Y, ListView<X>, Function<Y, ListView<X>::KeyType, ListView<X>::ValueType>, List<Y>>, "`ListView::map` is malformed.");
+    static_assert(IsFilterAvailable<List<X>, Function<B, List<X>::KeyType, List<X>::ValueType>>, "`List::filter` is malformed.");
+    static_assert(IsFilterAvailable<ListView<X>, Function<B, ListView<X>::KeyType, ListView<X>::ValueType>, List<X>>, "`ListView::filter` is malformed.");
 
 } // namespace Rong
 
