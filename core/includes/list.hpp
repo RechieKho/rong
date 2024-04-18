@@ -133,6 +133,40 @@ namespace Rong
     }
 
     template <class T>
+        requires IsSame<T, List<typename T::ValueType>> ||
+                 IsSame<T, ListView<typename T::ValueType>>
+    class ListIterator
+    {
+    public:
+        using ContainerType = T;
+        using KeyType = ContainerType::KeyType;
+        using ValueType = ContainerType::ValueType;
+
+    private:
+        const ContainerType &container;
+        KeyType current_key;
+
+    public:
+        constexpr ListIterator(const ContainerType &p_container, KeyType p_starting_key = 0) : container(p_container), current_key(p_starting_key) {}
+        constexpr auto operator*() const -> const ValueType & { return container.view_data()[current_key]; }
+        constexpr auto operator++() -> ListIterator &
+        {
+            if (current_key > container.get_count())
+                throw Exception<LOGICAL>("Iteration is completed.");
+            ++current_key;
+            return *this;
+        }
+        constexpr auto operator==(const ListIterator &p_right) const -> B { return container == p_right.container && current_key == p_right.current_key; }
+        constexpr auto operator--() -> ListIterator &
+        {
+            if (current_key == 0)
+                throw Exception<LOGICAL>("Iteration is completed.");
+            --current_key;
+            return *this;
+        }
+    };
+
+    template <class T>
     class ListView
     {
     public:
@@ -158,6 +192,8 @@ namespace Rong
 
         constexpr auto slice(const KeyType &p_begin_index, const KeyType &p_end_index) const -> ListView { return Rong::list_slice(*this, p_begin_index, p_end_index); }
         constexpr auto contains(const ValueType &p_thing) const -> B { return Rong::list_contains(*this, p_thing); }
+        constexpr auto cbegin() const -> ListIterator<ListView> { return ListIterator<ListView>(*this); }
+        constexpr auto cend() const -> ListIterator<ListView> { return ListIterator<ListView>(*this, count); }
 
         template <class C>
         auto for_each(const C &p_callable) const -> void { Rong::list_for_each(*this, p_callable); }
@@ -184,6 +220,38 @@ namespace Rong
         U capacity;
 
     public:
+        class AccessibleIterator
+        {
+        public:
+            using ContainerType = List;
+            using KeyType = ContainerType::KeyType;
+            using ValueType = ContainerType::ValueType;
+
+        private:
+            ContainerType &container;
+            KeyType current_key;
+
+        public:
+            AccessibleIterator(ContainerType &p_container, KeyType p_starting_key = 0) : container(p_container), current_key(p_starting_key) {}
+            inline auto operator*() -> ValueType & { return container.data[current_key]; }
+            inline auto operator++() -> AccessibleIterator &
+            {
+                if (current_key > container.count)
+                    throw Exception<LOGICAL>("Iteration is completed.");
+                ++current_key;
+                return *this;
+            }
+            inline auto operator==(const AccessibleIterator &p_right) const -> B { return container == p_right.container && current_key == p_right.current_key; }
+            inline auto operator--() -> AccessibleIterator &
+            {
+                if (current_key == 0)
+                    throw Exception<LOGICAL>("Iteration is completed.");
+                --current_key;
+                return *this;
+            }
+        };
+
+    public:
         constexpr List() noexcept : data(nullptr), count(0), capacity(0) {}
 
         inline auto view_data() const noexcept -> const ValueType * { return data; }
@@ -197,6 +265,10 @@ namespace Rong
 
         inline auto slice(const KeyType &p_begin_index, const KeyType &p_end_index) const -> ListView<ValueType> { return Rong::list_slice(*this, p_begin_index, p_end_index); }
         inline auto contains(const ValueType &p_thing) const -> B { return Rong::list_contains(*this, p_thing); }
+        inline auto cbegin() const -> ListIterator<List> { return ListIterator<List>(*this); }
+        inline auto cend() const -> ListIterator<List> { return ListIterator<List>(*this, count); }
+        inline auto begin() -> AccessibleIterator { return AccessibleIterator(*this); }
+        inline auto end() -> AccessibleIterator { return AccessibleIterator(*this, count); }
 
         template <class C>
         auto for_each(const C &p_callable) const -> void { Rong::list_for_each(*this, p_callable); }
@@ -319,6 +391,9 @@ namespace Rong
     };
 
 #ifdef FEATURE_ASSERTION
+    static_assert(IsBidirectionalIterator<ListIterator<List<X>>>, "`ListIterator` is malformed.");
+    static_assert(IsAccessibleBidirectionalIterator<List<X>::AccessibleIterator>, "`List::AccessibleIterator` is malformed.");
+
     static_assert(IsListBaseFeaturesAvailable<ListView<X>>, "`ListView` features are malformed.");
     static_assert(IsEqualAvailable<ListView<X>, List<X>>, "`ListView::operator==` is malformed.");
     static_assert(IsEqualAvailable<ListView<X>, ListView<X>>, "`ListView::operator==` is malformed.");
@@ -330,6 +405,7 @@ namespace Rong
     static_assert(IsFilterAvailable<ListView<X>, Function<B, ListView<X>::KeyType, ListView<X>::ValueType>, List<X>>, "`ListView::filter` is malformed.");
     static_assert(IsConcatAvailable<ListView<X>, List<X>, List<X>>, "`ListView::concat` is malformed.");
     static_assert(IsConcatAvailable<ListView<X>, ListView<X>, List<X>>, "`ListView::concat` is malformed.");
+    static_assert(IsIteratorAvailable<ListView<X>>, "`ListView` iterator is malformed.");
 
     static_assert(IsListBaseFeaturesAvailable<List<X>>, "`List` features are malformed.");
     static_assert(IsEqualAvailable<List<X>, List<X>>, "`List::operator==` is malformed.");
@@ -352,6 +428,8 @@ namespace Rong
     static_assert(IsPopBackAvailable<List<X>>, "`List::pop_back` is malformed.");
     static_assert(IsPopFrontAvailable<List<X>>, "`List::pop_front` is malformed.");
     static_assert(IsSetAvailable<List<X>>, "`List::set` is malformed.");
+    static_assert(IsIteratorAvailable<List<X>>, "`List` iterator is malformed.");
+    static_assert(IsIteratorAccessible<List<X>>, "`List` accessible iterator is malformed.");
 #endif // FEATURE_ASSERTION
 
 } // namespace Rong

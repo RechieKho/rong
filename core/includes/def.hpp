@@ -205,6 +205,41 @@ namespace Rong
     };
 
     template <class T>
+    concept IsIndexAccessble = IsKeyTypeAvailable<T> && IsValueTypeAvailable<T> && requires(T &p_object, const T::KeyType &p_index) {
+        {
+            p_object[p_index]
+        } -> IsSame<typename T::ValueType &>;
+    };
+
+    template <class T>
+    concept IsDerefAvailable = IsValueTypeAvailable<T> && requires(const T &p_object) {
+        {
+            *p_object
+        } -> IsSame<const typename T::ValueType &>;
+    };
+
+    template <class T>
+    concept IsDerefAccessible = IsValueTypeAvailable<T> && requires(T &p_object) {
+        {
+            *p_object
+        } -> IsSame<typename T::ValueType &>;
+    };
+
+    template <class T>
+    concept IsIncrememntAvailable = requires(T &p_object) {
+        {
+            ++p_object
+        } -> IsSame<T &>;
+    };
+
+    template <class T>
+    concept IsDecrementAvailable = requires(T &p_object) {
+        {
+            --p_object
+        } -> IsSame<T &>;
+    };
+
+    template <class T>
     concept IsContainsAvailable = IsValueTypeAvailable<T> && requires(const T &p_object, const T::ValueType &p_thing) {
         {
             p_object.contains(p_thing)
@@ -349,6 +384,60 @@ namespace Rong
 
     template <class T>
     constexpr auto forward(T &p_object) noexcept -> T && { return static_cast<T &&>(p_object); }
+
+    template <class T>
+    concept IsForwardIterator =
+        IsDerefAvailable<T> &&
+        IsIncrememntAvailable<T> &&
+        IsEqualAvailable<T, T>;
+
+    template <class T>
+    concept IsAccessibleForwardIterator =
+        IsDerefAccessible<T> &&
+        IsIncrememntAvailable<T> &&
+        IsEqualAvailable<T, T>;
+
+    template <class T>
+    concept IsBidirectionalIterator =
+        IsForwardIterator<T> &&
+        IsDecrementAvailable<T>;
+
+    template <class T>
+    concept IsAccessibleBidirectionalIterator =
+        IsAccessibleForwardIterator<T> &&
+        IsDecrementAvailable<T>;
+
+    template <class T>
+    concept IsRandomAccessIterator =
+        IsBidirectionalIterator<T> &&
+        IsIndexAvailable<T>;
+
+    template <class T>
+    concept IsAccessibleRandomAccessIterator =
+        IsAccessibleBidirectionalIterator<T> &&
+        IsIndexAccessble<T>;
+
+    template <class T>
+    concept IsIteratorAvailable = requires(const T &p_object) {
+        {
+            p_object.cbegin()
+        } -> IsForwardIterator;
+
+        {
+            p_object.cend()
+        } -> IsForwardIterator;
+    };
+
+    template <class T>
+    concept IsIteratorAccessible = requires(T &p_object) {
+        {
+            p_object.begin()
+        } -> IsAccessibleForwardIterator;
+
+        {
+            p_object.end()
+        } -> IsAccessibleForwardIterator;
+    };
 
 } // namespace Rong
 
