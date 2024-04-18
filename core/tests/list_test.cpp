@@ -1,14 +1,28 @@
 #include <catch2/catch_test_macros.hpp>
+#include <list.hpp>
 
-unsigned int Factorial(unsigned int number)
+using namespace Rong;
+
+TEST_CASE("List view indexing.", "[ListView::indexing]")
 {
-    return number <= 1 ? number : Factorial(number - 1) * number;
+    constexpr auto view = ListView<C>("HELLO", 5);
+    REQUIRE(view[0] == 'H');
+    REQUIRE(view[1] == 'E');
+    REQUIRE(view[2] == 'L');
+    REQUIRE(view[3] == 'L');
+    REQUIRE(view[4] == 'O');
+    REQUIRE_THROWS(view[5]);
+    REQUIRE_THROWS(view[-1]);
 }
 
-TEST_CASE("Factorials are computed", "[factorial]")
+TEST_CASE("List indexing.", "[List::indexing]")
 {
-    REQUIRE(Factorial(1) == 1);
-    REQUIRE(Factorial(2) == 2);
-    REQUIRE(Factorial(3) == 6);
-    REQUIRE(Factorial(10) == 3628800);
+    auto view = List<C>("HELLO", 5);
+    REQUIRE(view[0] == 'H');
+    REQUIRE(view[1] == 'E');
+    REQUIRE(view[2] == 'L');
+    REQUIRE(view[3] == 'L');
+    REQUIRE(view[4] == 'O');
+    REQUIRE_THROWS(view[5]);
+    REQUIRE_THROWS(view[-1]);
 }
