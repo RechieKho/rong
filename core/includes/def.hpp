@@ -181,6 +181,11 @@ namespace Rong
     };
 
     template <class T>
+    concept IsValueTypeAvailable = requires {
+        typename T::ValueType;
+    };
+
+    template <class T>
     concept IsKeyTypeAvailable = requires {
         typename T::KeyType;
     };

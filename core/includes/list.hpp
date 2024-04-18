@@ -9,10 +9,20 @@
 namespace Rong
 {
     template <class T>
-    concept IsList = IsElementTypeAvailable<T> && IsConstructableFromSpan<T, typename T::ElementType> && IsDefaultAvailable<T> && IsCountAvailable<T> && IsDataAvailable<T, typename T::ElementType>;
+    concept IsListFeaturesAvailable =
+        IsKeyTypeAvailable<T> &&
+        IsValueTypeAvailable<T> &&
+        IsElementTypeAvailable<T> &&
+        IsDefaultAvailable<T> &&
+        IsConstructableFromSpan<T, typename T::ElementType> &&
+        IsCountAvailable<T> &&
+        IsDataAvailable<T, typename T::ElementType>;
 
     template <class T>
-    concept IsAccessibleList = IsList<T> && IsCountAccessible<T> && IsDataAccessible<T, typename T::ElementType>;
+    concept IsListFeaturesAccessible =
+        IsListFeaturesAvailable<T> &&
+        IsCountAccessible<T> &&
+        IsDataAccessible<T, typename T::ElementType>;
 
     template <class T>
     class List;
@@ -20,8 +30,8 @@ namespace Rong
     template <class T>
     class ListView;
 
-    template <IsList T>
-    constexpr auto list_slice(const T &p_list, U p_begin_index, U p_end_index) -> ListView<typename T::ElementType>
+    template <IsListFeaturesAvailable T>
+    constexpr auto list_slice(const T &p_list, typename T::KeyType p_begin_index, typename T::KeyType p_end_index) -> ListView<typename T::ElementType>
     {
         if (p_begin_index >= p_list.get_count())
             throw Exception<LOGICAL>("Given begin index beyond list's element count.");
@@ -38,15 +48,15 @@ namespace Rong
         return ListView<typename T::ElementType>(new_data, new_count);
     }
 
-    template <IsList T>
-    constexpr auto list_view_element(const T &p_list, U p_index) -> const T::ElementType &
+    template <IsListFeaturesAvailable T>
+    constexpr auto list_view_element(const T &p_list, typename T::KeyType p_index) -> const T::ElementType &
     {
         if (p_index >= p_list.get_count())
             throw Exception<LOGICAL>("Given index is beyond list's element count.");
         return p_list.view_data()[p_index];
     }
 
-    template <IsList T>
+    template <IsListFeaturesAvailable T>
         requires IsEqualAvailable<typename T::ElementType, typename T::ElementType>
     constexpr auto list_contains(const T &p_list, const typename T::ElementType &p_thing) -> B
     {
@@ -57,7 +67,7 @@ namespace Rong
         return false;
     }
 
-    template <IsList T, class C>
+    template <IsListFeaturesAvailable T, class C>
         requires IsFunction<void, C, const typename T::ElementType &>
     auto list_for_each(const T &p_list, const C &p_callable) -> void
     {
@@ -66,7 +76,7 @@ namespace Rong
             p_callable(data[i]);
     }
 
-    template <class R, IsList T, class C>
+    template <class R, IsListFeaturesAvailable T, class C>
         requires IsFunction<R, C, const typename T::ElementType &>
     auto list_map(const T &p_list, const C &p_callable) -> List<R>
     {
@@ -80,7 +90,7 @@ namespace Rong
         return result;
     }
 
-    template <IsList T, class C>
+    template <IsListFeaturesAvailable T, class C>
         requires IsFunction<B, C, const typename T::ElementType &>
     auto list_filter(const T &p_list, const C &p_callable) -> List<typename T::ElementType>
     {
@@ -95,7 +105,7 @@ namespace Rong
         return result;
     }
 
-    template <IsList T, IsList V>
+    template <IsListFeaturesAvailable T, IsListFeaturesAvailable V>
         requires IsSame<typename T::ElementType, typename V::ElementType>
     auto list_concat(const T &p_left, const V &p_right) -> List<typename T::ElementType>
     {
@@ -117,7 +127,9 @@ namespace Rong
     class ListView
     {
     public:
-        using ElementType = T;
+        using KeyType = U;
+        using ValueType = T;
+        using ElementType = ValueType;
 
     private:
         const ElementType *data;
@@ -131,9 +143,9 @@ namespace Rong
         constexpr auto get_count() const noexcept -> U { return count; }
 
         operator List<ElementType>() const { return List<ElementType>(data, count); }
-        constexpr auto operator[](U p_index) const -> const ElementType & { return Rong::list_view_element(*this, p_index); }
+        constexpr auto operator[](KeyType p_index) const -> const ElementType & { return Rong::list_view_element(*this, p_index); }
 
-        constexpr auto slice(U p_begin_index, U p_end_index) const -> ListView { return Rong::list_slice(*this, p_begin_index, p_end_index); }
+        constexpr auto slice(KeyType p_begin_index, KeyType p_end_index) const -> ListView { return Rong::list_slice(*this, p_begin_index, p_end_index); }
         constexpr auto contains(const ElementType &p_thing) const -> B { return Rong::list_contains(*this, p_thing); }
 
         template <class C>
@@ -150,7 +162,9 @@ namespace Rong
     class List
     {
     public:
-        using ElementType = T;
+        using KeyType = U;
+        using ValueType = T;
+        using ElementType = ValueType;
         static constexpr const U INITIAL_CAPACITY = 16;
 
     private:
@@ -166,9 +180,9 @@ namespace Rong
         inline auto get_capacity() const noexcept -> U { return capacity; }
 
         operator ListView<ElementType>() const { return ListView<ElementType>(data, count); }
-        inline auto operator[](U p_index) const -> const ElementType & { return Rong::list_view_element(*this, p_index); }
+        inline auto operator[](KeyType p_index) const -> const ElementType & { return Rong::list_view_element(*this, p_index); }
 
-        inline auto slice(U p_begin_index, U p_end_index) const -> ListView<ElementType> { return Rong::list_slice(*this, p_begin_index, p_end_index); }
+        inline auto slice(KeyType p_begin_index, KeyType p_end_index) const -> ListView<ElementType> { return Rong::list_slice(*this, p_begin_index, p_end_index); }
         inline auto contains(const ElementType &p_thing) const -> B { return Rong::list_contains(*this, p_thing); }
 
         template <class C>
@@ -275,7 +289,7 @@ namespace Rong
             return popped;
         }
 
-        auto set(U p_index, const ElementType &p_thing) -> void
+        auto set(KeyType p_index, const ElementType &p_thing) -> void
         {
             if (p_index >= count)
                 throw Exception<LOGICAL>("Given index is beyond list's element count.");
