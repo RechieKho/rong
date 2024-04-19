@@ -147,7 +147,7 @@ namespace Rong
         KeyType current_key;
 
     public:
-        constexpr ListIterator(const ContainerType &p_container, KeyType p_starting_key = 0) : container(p_container), current_key(p_starting_key) {}
+        constexpr ListIterator(const ContainerType &p_container, KeyType p_starting_key = 0) : container(p_container), current_key(move(p_starting_key)) {}
         constexpr auto operator*() const -> const ValueType & { return container.view_data()[current_key]; }
         constexpr auto operator++() -> ListIterator &
         {
@@ -232,7 +232,7 @@ namespace Rong
             KeyType current_key;
 
         public:
-            AccessibleIterator(ContainerType &p_container, KeyType p_starting_key = 0) : container(p_container), current_key(p_starting_key) {}
+            AccessibleIterator(ContainerType &p_container, KeyType p_starting_key = 0) : container(p_container), current_key(move(p_starting_key)) {}
             inline auto operator*() -> ValueType & { return container.data[current_key]; }
             inline auto operator++() -> AccessibleIterator &
             {
