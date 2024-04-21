@@ -56,13 +56,16 @@ namespace Rong
         requires IsSame<typename T::ValueType, typename W::ValueType>
     constexpr auto list_equal(const T &p_left, const W &p_right) -> B
     {
-        auto left_data = p_left.view_data();
-        auto right_data = p_right.view_data();
         if (p_left.get_count() != p_right.get_count())
             return false;
-        for (U i = 0; i < p_left.get_count(); i++)
-            if (left_data[i] != right_data[i])
+
+        auto iterable = zip(p_left, p_right);
+        for (auto it = iterable.cbegin(); it != iterable.cend(); ++it)
+        {
+            auto [first, second] = *it;
+            if (first != second)
                 return false;
+        }
 
         return true;
     }
@@ -164,7 +167,7 @@ namespace Rong
             ++current_key;
             return *this;
         }
-        constexpr auto operator==(const ListIterator &p_right) const -> B { return container == p_right.container && current_key == p_right.current_key; }
+        constexpr auto operator==(const ListIterator &p_right) const -> B { return &container == &p_right.container && current_key == p_right.current_key; }
         constexpr auto operator--() -> ListIterator &
         {
             if (current_key == 0)
@@ -249,7 +252,7 @@ namespace Rong
                 ++current_key;
                 return *this;
             }
-            inline auto operator==(const AccessibleIterator &p_right) const -> B { return container == p_right.container && current_key == p_right.current_key; }
+            inline auto operator==(const AccessibleIterator &p_right) const -> B { return &container == &p_right.container && current_key == p_right.current_key; }
             inline auto operator--() -> AccessibleIterator &
             {
                 if (current_key == 0)

@@ -18,6 +18,8 @@ TEST_CASE("List view indexing.", "[ListView::indexing]")
 TEST_CASE("List indexing.", "[List::indexing]")
 {
     auto view = List<C>("HELLO", 5);
+    auto second = List<C>("HELsS", 5);
+    REQUIRE(view != second);
     REQUIRE(view[0] == 'H');
     REQUIRE(view[1] == 'E');
     REQUIRE(view[2] == 'L');

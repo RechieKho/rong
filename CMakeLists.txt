@@ -16,11 +16,17 @@ set(CMAKE_CXX_STANDARD 20)
 
 # Options.
 option(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-option(FEATURE_ASSERTION OFF)
+option(ENABLE_FEATURE_ASSERTION OFF)
+option(ENABLE_ASAN OFF)
 
-if(FEATURE_ASSERTION)
+if(ENABLE_FEATURE_ASSERTION)
 add_compile_definitions(-DFEATURE_ASSERTION)
-endif(FEATURE_ASSERTION)
+endif(ENABLE_FEATURE_ASSERTION)
+
+if(ENABLE_ASAN)
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
+endif(ENABLE_ASAN)
 
 enable_testing()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core)
