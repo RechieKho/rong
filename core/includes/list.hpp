@@ -5,6 +5,7 @@
 
 #include "def.hpp"
 #include "exception.hpp"
+#include "iterator.hpp"
 
 namespace Rong
 {
@@ -16,7 +17,8 @@ namespace Rong
         IsDefaultAvailable<T> &&
         IsConstructableFromSpan<T> &&
         IsCountAvailable<T> &&
-        IsDataAvailable<T>;
+        IsDataAvailable<T> &&
+        IsIteratorAvailable<T>;
 
     template <class T>
     class List;
@@ -69,9 +71,8 @@ namespace Rong
         requires IsEqualAvailable<typename T::ValueType, typename T::ValueType>
     constexpr auto list_contains(const T &p_list, const typename T::ValueType &p_thing) -> B
     {
-        auto data = p_list.view_data();
-        for (U i = 0; i < p_list.get_count(); i++)
-            if (data[i] == p_thing)
+        for (auto it = p_list.cbegin(); it != p_list.cend(); ++it)
+            if (*it == p_thing)
                 return true;
         return false;
     }
@@ -80,9 +81,12 @@ namespace Rong
         requires IsFunction<void, C, const typename T::KeyType &, const typename T::ValueType &>
     auto list_for_each(const T &p_list, const C &p_callable) -> void
     {
-        auto data = p_list.view_data();
-        for (U i = 0; i < p_list.get_count(); i++)
-            p_callable(i, data[i]);
+        auto iterable = enumerate(p_list.cbegin(), p_list.cend());
+        for (auto it = iterable.cbegin(); it != iterable.cend(); ++it)
+        {
+            auto [index, element] = *it;
+            p_callable(index, element);
+        }
     }
 
     template <class R, IsListBaseFeaturesAvailable T, class C>
@@ -90,11 +94,14 @@ namespace Rong
     auto list_map(const T &p_list, const C &p_callable) -> List<R>
     {
         auto result = List<R>();
-        result.reserve(p_list.get_count());
+        result.reserve(p_list.get_capacity());
 
-        auto data = p_list.view_data();
-        for (U i = 0; i < p_list.get_count(); i++)
-            result.append(p_callable(i, data[i]));
+        auto iterable = enumerate(p_list.cbegin(), p_list.cend());
+        for (auto it = iterable.cbegin(); it != iterable.cend(); ++it)
+        {
+            auto [index, element] = *it;
+            result.append(p_callable(index, element));
+        }
 
         return result;
     }
@@ -106,10 +113,13 @@ namespace Rong
         auto result = List<typename T::ValueType>();
         result.reserve(p_list.get_count());
 
-        auto data = p_list.view_data();
-        for (U i = 0; i < p_list.get_count(); i++)
-            if (p_callable(i, data[i]))
-                result.append(data[i]);
+        auto iterable = enumerate(p_list.cbegin(), p_list.cend());
+        for (auto it = iterable.cbegin(); it != iterable.cend(); ++it)
+        {
+            auto [index, element] = *it;
+            if (p_callable(index, element))
+                result.append(element);
+        }
 
         return result;
     }
@@ -121,13 +131,11 @@ namespace Rong
         auto result = List<typename T::ValueType>();
         result.reserve(p_left.get_count() + p_right.get_count());
 
-        auto data_left = p_left.view_data();
-        for (U i = 0; i < p_left.get_count(); i++)
-            result.append(data_left[i]);
+        for (auto it = p_left.cbegin(); it != p_left.cend(); ++it)
+            result.append(*it);
 
-        auto data_right = p_right.view_data();
-        for (U i = 0; i < p_right.get_count(); i++)
-            result.append(data_right[i]);
+        for (auto it = p_right.cbegin(); it != p_right.cend(); ++it)
+            result.append(*it);
 
         return result;
     }
@@ -232,7 +240,7 @@ namespace Rong
             KeyType current_key;
 
         public:
-            AccessibleIterator(ContainerType &p_container, KeyType p_starting_key = 0) : container(p_container), current_key(move(p_starting_key)) {}
+            inline AccessibleIterator(ContainerType &p_container, KeyType p_starting_key = 0) : container(p_container), current_key(move(p_starting_key)) {}
             inline auto operator*() -> ValueType & { return container.data[current_key]; }
             inline auto operator++() -> AccessibleIterator &
             {
@@ -392,7 +400,7 @@ namespace Rong
 
 #ifdef FEATURE_ASSERTION
     static_assert(IsBidirectionalIterator<ListIterator<List<X>>>, "`ListIterator` is malformed.");
-    static_assert(IsAccessibleBidirectionalIterator<List<X>::AccessibleIterator>, "`List::AccessibleIterator` is malformed.");
+    static_assert(IsBidirectionalIterator<List<X>::AccessibleIterator, List<X>::AccessibleIterator::ValueType &>, "`List::AccessibleIterator` is malformed.");
 
     static_assert(IsListBaseFeaturesAvailable<ListView<X>>, "`ListView` features are malformed.");
     static_assert(IsEqualAvailable<ListView<X>, List<X>>, "`ListView::operator==` is malformed.");

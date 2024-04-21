@@ -197,32 +197,18 @@ namespace Rong
         } -> IsSame<W>;
     };
 
-    template <class T>
-    concept IsIndexAvailable = IsKeyTypeAvailable<T> && IsValueTypeAvailable<T> && requires(const T &p_object, const T::KeyType &p_index) {
+    template <class T, class R = const typename T::ValueType &>
+    concept IsIndexAvailable = IsKeyTypeAvailable<T> && requires(T p_object, const T::KeyType &p_index) {
         {
             p_object[p_index]
-        } -> IsSame<const typename T::ValueType &>;
+        } -> IsSame<R>;
     };
 
-    template <class T>
-    concept IsIndexAccessble = IsKeyTypeAvailable<T> && IsValueTypeAvailable<T> && requires(T &p_object, const T::KeyType &p_index) {
-        {
-            p_object[p_index]
-        } -> IsSame<typename T::ValueType &>;
-    };
-
-    template <class T>
-    concept IsDerefAvailable = IsValueTypeAvailable<T> && requires(const T &p_object) {
+    template <class T, class R = const typename T::ValueType &>
+    concept IsDerefAvailable = requires(T p_object) {
         {
             *p_object
-        } -> IsSame<const typename T::ValueType &>;
-    };
-
-    template <class T>
-    concept IsDerefAccessible = IsValueTypeAvailable<T> && requires(T &p_object) {
-        {
-            *p_object
-        } -> IsSame<typename T::ValueType &>;
+        } -> IsSame<R>;
     };
 
     template <class T>
@@ -385,58 +371,42 @@ namespace Rong
     template <class T>
     constexpr auto forward(T &p_object) noexcept -> T && { return static_cast<T &&>(p_object); }
 
-    template <class T>
+    template <class T, class R = const typename T::ValueType &>
     concept IsForwardIterator =
-        IsDerefAvailable<T> &&
+        IsDerefAvailable<T, R> &&
         IsIncrememntAvailable<T> &&
         IsEqualAvailable<T, T>;
 
-    template <class T>
-    concept IsAccessibleForwardIterator =
-        IsDerefAccessible<T> &&
-        IsIncrememntAvailable<T> &&
-        IsEqualAvailable<T, T>;
-
-    template <class T>
+    template <class T, class R = const typename T::ValueType &>
     concept IsBidirectionalIterator =
-        IsForwardIterator<T> &&
+        IsForwardIterator<T, R> &&
         IsDecrementAvailable<T>;
 
-    template <class T>
-    concept IsAccessibleBidirectionalIterator =
-        IsAccessibleForwardIterator<T> &&
-        IsDecrementAvailable<T>;
-
-    template <class T>
+    template <class T, class R = const typename T::ValueType &>
     concept IsRandomAccessIterator =
-        IsBidirectionalIterator<T> &&
-        IsIndexAvailable<T>;
+        IsBidirectionalIterator<T, R> &&
+        IsIndexAvailable<T, R>;
 
-    template <class T>
-    concept IsAccessibleRandomAccessIterator =
-        IsAccessibleBidirectionalIterator<T> &&
-        IsIndexAccessble<T>;
-
-    template <class T>
+    template <class T, class R = const typename T::ValueType &>
     concept IsIteratorAvailable = requires(const T &p_object) {
         {
             p_object.cbegin()
-        } -> IsForwardIterator;
+        } -> IsForwardIterator<R>;
 
         {
             p_object.cend()
-        } -> IsForwardIterator;
+        } -> IsForwardIterator<R>;
     };
 
-    template <class T>
+    template <class T, class R = typename T::ValueType &>
     concept IsIteratorAccessible = requires(T &p_object) {
         {
             p_object.begin()
-        } -> IsAccessibleForwardIterator;
+        } -> IsForwardIterator<R>;
 
         {
             p_object.end()
-        } -> IsAccessibleForwardIterator;
+        } -> IsForwardIterator<R>;
     };
 
 } // namespace Rong
