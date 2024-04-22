@@ -46,17 +46,9 @@ namespace Rong
         constexpr Tuple(T... p_values) : TupleNode<T...>(p_values...) {}
 
         template <U Index>
-            requires(Index == 0)
         constexpr auto get() const -> ValueType<Index>
         {
-            return TupleNode<T...>::value;
-        }
-
-        template <U Index>
-            requires(Index > 0)
-        constexpr auto get() const -> ValueType<Index>
-        {
-            return TypeAt<Index - 1, T...>::template Rest<TupleNode>::value;
+            return TypeAt<Index, T...>::template Set<TupleNode>::value;
         }
 
         template <class V>

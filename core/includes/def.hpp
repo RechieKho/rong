@@ -80,6 +80,8 @@ namespace Rong
     {
         template <template <class...> class V>
         using Rest = TypeAt<Index - 1, W...>::template Rest<V>;
+        template <template <class...> class V>
+        using Set = TypeAt<Index - 1, W...>::template Set<V>;
         using Type = TypeAt<Index - 1, W...>::Type;
     };
 
@@ -88,6 +90,8 @@ namespace Rong
     {
         template <template <class...> class V>
         using Rest = Parameters<W...>::template Apply<V>;
+        template <template <class...> class V>
+        using Set = Parameters<T, W...>::template Apply<V>;
         using Type = T;
     };
 
