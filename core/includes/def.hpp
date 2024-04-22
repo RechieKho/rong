@@ -68,6 +68,49 @@ namespace Rong
         using Type = T;
     };
 
+    template <class... T>
+    struct Parameters
+    {
+        template <template <class...> class W>
+        using Apply = W<T...>;
+    };
+
+    template <U Index, class T, class... W>
+    struct TypeAt
+    {
+        template <template <class...> class V>
+        using Rest = TypeAt<Index - 1, W...>::template Rest<V>;
+        using Type = TypeAt<Index - 1, W...>::Type;
+    };
+
+    template <class T, class... W>
+    struct TypeAt<0, T, W...>
+    {
+        template <template <class...> class V>
+        using Rest = Parameters<W...>::template Apply<V>;
+        using Type = T;
+    };
+
+    template <class T, class... W>
+    struct TypeIndex
+    {
+    private:
+        template <U Index, class TargetType, class CurrentType, class... RestTypes>
+        struct IndexCounter
+        {
+            static constexpr U INDEX = IndexCounter<Index + 1, TargetType, RestTypes...>::INDEX;
+        };
+
+        template <U Index, class TargetType, class... RestTypes>
+        struct IndexCounter<Index, TargetType, TargetType, RestTypes...>
+        {
+            static constexpr U INDEX = Index;
+        };
+
+    public:
+        static constexpr U INDEX = IndexCounter<0, T, W...>::INDEX;
+    };
+
     template <class T, class V>
     struct Same : FalseItem
     {
