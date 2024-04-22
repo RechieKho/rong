@@ -82,47 +82,33 @@ namespace Rong
 
     template <IsListBaseFeaturesAvailable T, class C>
         requires IsFunction<void, C, const typename T::KeyType &, const typename T::ValueType &>
-    auto list_for_each(const T &p_list, const C &p_callable) -> void
+    constexpr auto list_for_each(const T &p_list, C &&p_callable) -> void
     {
-        auto iterable = enumerate(p_list.cbegin(), p_list.cend());
-        for (auto it = iterable.cbegin(); it != iterable.cend(); ++it)
-        {
-            auto [index, element] = *it;
-            p_callable(index, element);
-        }
+        for_each(forward<C>(p_callable), p_list.cbegin(), p_list.cend());
     }
 
     template <class R, IsListBaseFeaturesAvailable T, class C>
         requires IsFunction<R, C, const typename T::KeyType &, const typename T::ValueType &>
-    auto list_map(const T &p_list, const C &p_callable) -> List<R>
+    auto list_map(const T &p_list, C &&p_callable) -> List<R>
     {
         auto result = List<R>();
         result.reserve(p_list.get_capacity());
 
-        auto iterable = enumerate(p_list.cbegin(), p_list.cend());
-        for (auto it = iterable.cbegin(); it != iterable.cend(); ++it)
-        {
-            auto [index, element] = *it;
-            result.append(p_callable(index, element));
-        }
+        for_each([&](U p_index, auto p_element)
+                 { result.append(p_callable(p_index, p_element)); }, p_list.cbegin(), p_list.cend());
 
         return result;
     }
 
     template <IsListBaseFeaturesAvailable T, class C>
         requires IsFunction<B, C, const typename T::KeyType &, const typename T::ValueType &>
-    auto list_filter(const T &p_list, const C &p_callable) -> List<typename T::ValueType>
+    auto list_filter(const T &p_list, C &&p_callable) -> List<typename T::ValueType>
     {
         auto result = List<typename T::ValueType>();
         result.reserve(p_list.get_count());
 
-        auto iterable = enumerate(p_list.cbegin(), p_list.cend());
-        for (auto it = iterable.cbegin(); it != iterable.cend(); ++it)
-        {
-            auto [index, element] = *it;
-            if (p_callable(index, element))
-                result.append(element);
-        }
+        for_each([&](U p_index, auto p_element)
+                 { if constexpr (p_callable(p_index, p_element)) result.append(p_element); }, p_list.cbegin(), p_list.cend());
 
         return result;
     }
@@ -134,11 +120,10 @@ namespace Rong
         auto result = List<typename T::ValueType>();
         result.reserve(p_left.get_count() + p_right.get_count());
 
-        for (auto it = p_left.cbegin(); it != p_left.cend(); ++it)
-            result.append(*it);
-
-        for (auto it = p_right.cbegin(); it != p_right.cend(); ++it)
-            result.append(*it);
+        for_each([&](U p_index, auto p_element)
+                 { result.append(p_element); }, p_left.cbegin(), p_left.cend());
+        for_each([&](U p_index, auto p_element)
+                 { result.append(p_element); }, p_right.cbegin(), p_right.cend());
 
         return result;
     }
@@ -207,13 +192,13 @@ namespace Rong
         constexpr auto cend() const -> ListIterator<ListView> { return ListIterator<ListView>(*this, count); }
 
         template <class C>
-        auto for_each(const C &p_callable) const -> void { Rong::list_for_each(*this, p_callable); }
+        constexpr auto for_each(const C &p_callable) const -> void { Rong::list_for_each(*this, p_callable); }
         template <class R, class C>
-        auto map(const C &p_callable) const -> List<R> { return Rong::list_map<R>(*this, p_callable); }
+        inline auto map(const C &p_callable) const -> List<R> { return Rong::list_map<R>(*this, p_callable); }
         template <class C>
-        auto filter(const C &p_callable) const -> List<ValueType> { return Rong::list_filter(*this, p_callable); }
+        inline auto filter(const C &p_callable) const -> List<ValueType> { return Rong::list_filter(*this, p_callable); }
         template <class V>
-        auto concat(const V &p_list) const -> List<ValueType> { return Rong::list_concat(*this, p_list); }
+        inline auto concat(const V &p_list) const -> List<ValueType> { return Rong::list_concat(*this, p_list); }
     };
 
     template <class T>
@@ -282,13 +267,13 @@ namespace Rong
         inline auto end() -> AccessibleIterator { return AccessibleIterator(*this, count); }
 
         template <class C>
-        auto for_each(const C &p_callable) const -> void { Rong::list_for_each(*this, p_callable); }
+        inline auto for_each(const C &p_callable) const -> void { Rong::list_for_each(*this, p_callable); }
         template <class R, class C>
-        auto map(const C &p_callable) const -> List<R> { return Rong::list_map<R>(*this, p_callable); }
+        inline auto map(const C &p_callable) const -> List<R> { return Rong::list_map<R>(*this, p_callable); }
         template <class C>
-        auto filter(const C &p_callable) const -> List<ValueType> { return Rong::list_filter(*this, p_callable); }
+        inline auto filter(const C &p_callable) const -> List<ValueType> { return Rong::list_filter(*this, p_callable); }
         template <class V>
-        auto concat(const V &p_list) const -> List<ValueType> { return Rong::list_concat(*this, p_list); }
+        inline auto concat(const V &p_list) const -> List<ValueType> { return Rong::list_concat(*this, p_list); }
 
         List(const ValueType *p_data, U p_count) : data(nullptr), count(0), capacity(0)
         {

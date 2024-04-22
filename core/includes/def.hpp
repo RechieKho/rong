@@ -452,6 +452,18 @@ namespace Rong
         } -> IsForwardIterator<R>;
     };
 
+    template <class T, class C, class R = const typename T::ValueType &>
+        requires IsForwardIterator<T, R> && IsFunction<void, C, U, R>
+    constexpr auto for_each(C &&p_callable, T p_begin, T p_end, U p_index = 0) -> void
+    {
+        if constexpr (p_begin != p_end)
+        {
+            p_callable(p_index, *p_begin);
+            ++p_begin;
+            for_each(forward<C>(p_callable), p_begin, p_end, p_index + 1);
+        }
+    }
+
 } // namespace Rong
 
 #endif // RG_CORE_DEF_HPP
