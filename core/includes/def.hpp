@@ -78,6 +78,8 @@ namespace Rong
     template <U Index, class T, class... W>
     struct TypeAt
     {
+        static_assert(Index < (sizeof...(W) + 1), "Given index is beyond parameter pack's count.");
+
         template <template <class...> class V>
         using Rest = TypeAt<Index - 1, W...>::template Rest<V>;
         template <template <class...> class V>
