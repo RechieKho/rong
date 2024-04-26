@@ -40,8 +40,13 @@ namespace Rong
         /* Dummy type. */
     };
 
+    struct Inconstructible
+    {
+        ~Inconstructible() = delete;
+    };
+
     template <class T, T v>
-    struct Item
+    struct Item : Inconstructible
     {
         using Type = T;
         static constexpr const Type value = v;
@@ -51,32 +56,32 @@ namespace Rong
     using TrueItem = Item<B, true>;
 
     template <class T>
-    struct Referenceless
+    struct Referenceless : Inconstructible
     {
         using Type = T;
     };
 
     template <class T>
-    struct Referenceless<T &>
+    struct Referenceless<T &> : Inconstructible
     {
         using Type = T;
     };
 
     template <class T>
-    struct Referenceless<T &&>
+    struct Referenceless<T &&> : Inconstructible
     {
         using Type = T;
     };
 
     template <class... T>
-    struct Parameters
+    struct Parameters : Inconstructible
     {
         template <template <class...> class W>
         using Apply = W<T...>;
     };
 
     template <U Index, class T, class... W>
-    struct TypeAt
+    struct TypeAt : Inconstructible
     {
         static_assert(Index < (sizeof...(W) + 1), "Given index is beyond parameter pack's count.");
 
@@ -88,7 +93,7 @@ namespace Rong
     };
 
     template <class T, class... W>
-    struct TypeAt<0, T, W...>
+    struct TypeAt<0, T, W...> : Inconstructible
     {
         template <template <class...> class V>
         using Rest = Parameters<W...>::template Apply<V>;
@@ -98,17 +103,17 @@ namespace Rong
     };
 
     template <class T, class... W>
-    struct TypeIndex
+    struct TypeIndex : Inconstructible
     {
     private:
         template <U Index, class TargetType, class CurrentType, class... RestTypes>
-        struct IndexCounter
+        struct IndexCounter : Inconstructible
         {
             static constexpr U INDEX = IndexCounter<Index + 1, TargetType, RestTypes...>::INDEX;
         };
 
         template <U Index, class TargetType, class... RestTypes>
-        struct IndexCounter<Index, TargetType, TargetType, RestTypes...>
+        struct IndexCounter<Index, TargetType, TargetType, RestTypes...> : Inconstructible
         {
             static constexpr U INDEX = Index;
         };
