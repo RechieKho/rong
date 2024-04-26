@@ -21,9 +21,9 @@ namespace Rong
         const C *description;
 
     public:
-        constexpr Exception(const C *p_description) noexcept : description(p_description) {}
+        constexpr Exception(const C *p_description) : description(p_description) {}
 
-        constexpr auto what() const noexcept -> const C * { return description; }
+        constexpr auto what() const -> const C * { return description; }
     };
 
 } // namespace Rong

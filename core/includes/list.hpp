@@ -175,11 +175,11 @@ namespace Rong
         U count;
 
     public:
-        constexpr ListView(const ValueType *p_data, U p_count) noexcept : data(p_data), count(p_count) {}
-        constexpr ListView() noexcept : data(nullptr), count(0) {}
+        constexpr ListView(const ValueType *p_data, U p_count) : data(p_data), count(p_count) {}
+        constexpr ListView() : data(nullptr), count(0) {}
 
-        constexpr auto view_data() const noexcept -> const ValueType * { return data; }
-        constexpr auto get_count() const noexcept -> U { return count; }
+        constexpr auto view_data() const -> const ValueType * { return data; }
+        constexpr auto get_count() const -> U { return count; }
 
         operator List<ValueType>() const { return List<ValueType>(data, count); }
         constexpr auto operator[](const KeyType &p_index) const -> const ValueType & { return Rong::list_view_element(*this, p_index); }
@@ -248,11 +248,11 @@ namespace Rong
         };
 
     public:
-        constexpr List() noexcept : data(nullptr), count(0), capacity(0) {}
+        constexpr List() : data(nullptr), count(0), capacity(0) {}
 
-        inline auto view_data() const noexcept -> const ValueType * { return data; }
-        inline auto get_count() const noexcept -> U { return count; }
-        inline auto get_capacity() const noexcept -> U { return capacity; }
+        inline auto view_data() const -> const ValueType * { return data; }
+        inline auto get_count() const -> U { return count; }
+        inline auto get_capacity() const -> U { return capacity; }
 
         operator ListView<ValueType>() const { return ListView<ValueType>(data, count); }
         inline auto operator[](const KeyType &p_index) const -> const ValueType & { return Rong::list_view_element(*this, p_index); }

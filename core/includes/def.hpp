@@ -420,10 +420,10 @@ namespace Rong
         };
 
     template <class T>
-    constexpr auto move(T &p_object) noexcept -> Referenceless<T>::Type { return static_cast<typename Referenceless<T>::Type &&>(p_object); }
+    constexpr auto move(T &p_object) -> Referenceless<T>::Type { return static_cast<typename Referenceless<T>::Type &&>(p_object); }
 
     template <class T>
-    constexpr auto forward(T &p_object) noexcept -> T && { return static_cast<T &&>(p_object); }
+    constexpr auto forward(T &p_object) -> T && { return static_cast<T &&>(p_object); }
 
     template <class T, class R = const typename T::ValueType &>
     concept IsForwardIterator =
