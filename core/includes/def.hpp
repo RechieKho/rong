@@ -2,7 +2,7 @@
 #define RG_CORE_DEF_HPP
 
 #include <stdint.h>
-#include <functional>
+#include <stdlib.h>
 
 namespace Rong
 {
