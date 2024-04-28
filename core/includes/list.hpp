@@ -276,6 +276,11 @@ namespace Rong
         template <class V>
         inline auto concat(const V &p_list) const -> List<ValueType> { return Rong::list_concat(*this, p_list); }
 
+        List(U p_capacity) : data(nullptr), count(0), capacity(0)
+        {
+            reserve(p_capacity);
+        }
+
         List(const ValueType *p_data, U p_count) : data(nullptr), count(0), capacity(0)
         {
             reserve(p_count);
