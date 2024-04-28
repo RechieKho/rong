@@ -269,14 +269,14 @@ namespace Rong
     concept IsIncrememntAvailable = requires(T &p_object) {
         {
             ++p_object
-        } -> IsSame<T &>;
+        } -> IsSame<T>;
     };
 
     template <class T>
     concept IsDecrementAvailable = requires(T &p_object) {
         {
             --p_object
-        } -> IsSame<T &>;
+        } -> IsSame<T>;
     };
 
     template <class T>

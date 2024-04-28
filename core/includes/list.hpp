@@ -138,13 +138,13 @@ namespace Rong
     public:
         constexpr ListIterator(const ContainerType &p_container, KeyType p_starting_key = 0) : container(p_container), current_key(move(p_starting_key)) {}
         constexpr auto operator*() const -> const ValueType & { return container[current_key]; }
-        constexpr auto operator++() -> ListIterator &
+        constexpr auto operator++() -> ListIterator
         {
             ++current_key;
             return *this;
         }
         constexpr auto operator==(const ListIterator &p_right) const -> B { return &container == &p_right.container && current_key == p_right.current_key; }
-        constexpr auto operator--() -> ListIterator &
+        constexpr auto operator--() -> ListIterator
         {
             --current_key;
             return *this;
@@ -225,13 +225,13 @@ namespace Rong
         public:
             inline AccessibleIterator(ContainerType &p_container, KeyType p_starting_key = 0) : container(p_container), current_key(move(p_starting_key)) {}
             inline auto operator*() -> ValueType & { return container[current_key]; }
-            inline auto operator++() -> AccessibleIterator &
+            inline auto operator++() -> AccessibleIterator
             {
                 ++current_key;
                 return *this;
             }
             inline auto operator==(const AccessibleIterator &p_right) const -> B { return &container == &p_right.container && current_key == p_right.current_key; }
-            inline auto operator--() -> AccessibleIterator &
+            inline auto operator--() -> AccessibleIterator
             {
                 --current_key;
                 return *this;

@@ -19,7 +19,8 @@ namespace Rong
     public:
         inline DummyIterator() = delete;
         inline auto operator*() const -> const ValueType & { throw Exception<LOGICAL>("`XIterator` is a dummy iterator."); }
-        inline auto operator++() -> DummyIterator & { throw Exception<LOGICAL>("`XIterator` is a dummy iterator."); }
+        inline auto operator++() -> DummyIterator { throw Exception<LOGICAL>("`XIterator` is a dummy iterator."); }
+        inline auto operator--() -> DummyIterator { throw Exception<LOGICAL>("`XIterator` is a dummy iterator."); }
         inline auto operator==(const DummyIterator &p_right) const -> B { throw Exception<LOGICAL>("`XIterator` is a dummy iterator."); }
     };
 
@@ -34,7 +35,8 @@ namespace Rong
     public:
         inline AccessibleDummyIterator() = delete;
         inline auto operator*() -> ValueType & { throw Exception<LOGICAL>("`XAccessibleIterator` is a dummy iterator."); }
-        inline auto operator++() -> AccessibleDummyIterator & { throw Exception<LOGICAL>("`XAccessibleIterator` is a dummy iterator."); }
+        inline auto operator++() -> AccessibleDummyIterator { throw Exception<LOGICAL>("`XAccessibleIterator` is a dummy iterator."); }
+        inline auto operator--() -> AccessibleDummyIterator { throw Exception<LOGICAL>("`XAccessibleIterator` is a dummy iterator."); }
         inline auto operator==(const AccessibleDummyIterator &p_right) const -> B { throw Exception<LOGICAL>("`XAccessibleIterator` is a dummy iterator."); }
     };
 
@@ -85,7 +87,7 @@ namespace Rong
     public:
         constexpr EnumerateIterator(const T &p_iterator) : iterator(p_iterator), index(0) {}
         constexpr auto operator*() const -> ValueType { return ValueType(index, *iterator); }
-        constexpr auto operator++() -> EnumerateIterator &
+        constexpr auto operator++() -> EnumerateIterator
         {
             ++iterator;
             ++index;
@@ -115,7 +117,7 @@ namespace Rong
     public:
         inline AccessibleEnumerateIterator(const T &p_iterator) : iterator(p_iterator), index(0) {}
         inline auto operator*() -> ValueType { return ValueType(index, *iterator); }
-        inline auto operator++() -> AccessibleEnumerateIterator &
+        inline auto operator++() -> AccessibleEnumerateIterator
         {
             ++iterator;
             ++index;
@@ -145,7 +147,7 @@ namespace Rong
     public:
         constexpr ZipIterator(const T &p_first, const W &p_second) : first(p_first), second(p_second) {}
         constexpr auto operator*() const -> ValueType { return ValueType(*first, *second); }
-        constexpr auto operator++() -> ZipIterator &
+        constexpr auto operator++() -> ZipIterator
         {
             ++first;
             ++second;
@@ -185,7 +187,7 @@ namespace Rong
     public:
         inline AccessibleZipIterator(const T &p_first, const W &p_second) : first(p_first), second(p_second) {}
         inline auto operator*() -> ValueType { return ValueType(*first, *second); }
-        inline auto operator++() -> AccessibleZipIterator &
+        inline auto operator++() -> AccessibleZipIterator
         {
             ++first;
             ++second;
@@ -206,9 +208,67 @@ namespace Rong
 
     template <class T, class W, class R = typename T::ValueType &, class S = typename W::ValueType &>
         requires IsIteratorAccessible<T, R> && IsIteratorAccessible<W, S>
-    inline auto accessible_zip(T &p_first_iterable, W &p_second_iterable)
+    inline auto accessible_zip(T &&p_first_iterable, W &&p_second_iterable)
     {
         return accessible_zip(p_first_iterable.begin(), p_first_iterable.end(), p_second_iterable.begin(), p_second_iterable.end());
+    }
+
+    template <class T, class R = const typename T::ValueType &>
+        requires IsBidirectionalIterator<T, R>
+    class ReverseIterator
+    {
+    public:
+        using ValueType = R;
+
+    private:
+        T iterator;
+
+    public:
+        constexpr ReverseIterator(const T &p_iterator) : iterator(p_iterator) {}
+        constexpr auto operator*() const -> ValueType { return *iterator; }
+        constexpr auto operator++() -> ReverseIterator
+        {
+            --iterator;
+            return *this;
+        }
+        inline auto operator==(const ReverseIterator &p_right) const -> B { return iterator == p_right.iterator; }
+    };
+
+    template <class T, class R = const typename T::ValueType &>
+        requires IsBidirectionalIterator<T, R>
+    constexpr auto reverse(T &&p_begin_iterator, T &&p_end_iterator)
+    {
+        using Iterator = ReverseIterator<T, R>;
+        return IteratorWrapper<Iterator, typename Iterator::ValueType>(Iterator(--p_end_iterator), Iterator(--p_begin_iterator));
+    }
+
+    template <class T, class R = typename T::ValueType &>
+        requires IsBidirectionalIterator<T, R>
+    class AccessibleReverseIterator
+    {
+    public:
+        using ValueType = R;
+
+    private:
+        T iterator;
+
+    public:
+        inline AccessibleReverseIterator(const T &p_iterator) : iterator(p_iterator) {}
+        inline auto operator*() -> ValueType { return *iterator; }
+        inline auto operator++() -> AccessibleReverseIterator
+        {
+            --iterator;
+            return *this;
+        }
+        inline auto operator==(const AccessibleReverseIterator &p_right) const -> B { return iterator == p_right.iterator; }
+    };
+
+    template <class T, class R = typename T::ValueType &>
+        requires IsBidirectionalIterator<T, R>
+    constexpr auto accessible_reverse(T &&p_begin_iterator, T &&p_end_iterator)
+    {
+        using Iterator = AccessibleReverseIterator<T, R>;
+        return AccessibleIteratorWrapper<Iterator, typename Iterator::ValueType>(Iterator(--p_end_iterator), Iterator(--p_begin_iterator));
     }
 
 #ifdef FEATURE_ASSERTION
@@ -220,6 +280,8 @@ namespace Rong
     static_assert(IsForwardIterator<AccessibleEnumerateIterator<AccessibleDummyIterator<X>>, typename AccessibleEnumerateIterator<AccessibleDummyIterator<X>>::ValueType>, "`AccessibleEnumerateIterator` is malformed.");
     static_assert(IsForwardIterator<ZipIterator<DummyIterator<X>, DummyIterator<Y>>, typename ZipIterator<DummyIterator<X>, DummyIterator<Y>>::ValueType>, "`EnumerateIterator` is malformed.");
     static_assert(IsForwardIterator<AccessibleZipIterator<AccessibleDummyIterator<X>, AccessibleDummyIterator<Y>>, typename AccessibleZipIterator<AccessibleDummyIterator<X>, AccessibleDummyIterator<Y>>::ValueType>, "`EnumerateIterator` is malformed.");
+    static_assert(IsForwardIterator<ReverseIterator<DummyIterator<X>>, typename ReverseIterator<DummyIterator<X>>::ValueType>, "`ReverseIterator` is malformed.");
+    static_assert(IsForwardIterator<AccessibleReverseIterator<AccessibleDummyIterator<X>>, typename AccessibleReverseIterator<AccessibleDummyIterator<X>>::ValueType>, "`AccessibleReverseIterator` is malformed.");
 #endif // FEATURE_ASSERTION
 
 } // namespace Rong
