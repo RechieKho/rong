@@ -155,14 +155,20 @@ namespace Rong
     };
 
     template <class T, class W, class R = const typename T::ValueType &, class S = const typename W::ValueType &>
+        requires IsForwardIterator<T, R> && IsForwardIterator<W, S>
+    constexpr auto zip(T &&p_first_begin_iterator, T &&p_first_end_iterator, W &&p_second_begin_iterator, W &&p_second_end_iterator)
+    {
+        using Iterator = ZipIterator<T, W, R, S>;
+        auto begin_iterator = Iterator(forward<T>(p_first_begin_iterator), forward<W>(p_second_begin_iterator));
+        auto end_iterator = Iterator(forward<T>(p_first_end_iterator), forward<W>(p_second_end_iterator));
+        return IteratorWrapper<Iterator, typename Iterator::ValueType>(begin_iterator, end_iterator);
+    }
+
+    template <class T, class W, class R = const typename T::ValueType &, class S = const typename W::ValueType &>
         requires IsIteratorAvailable<T, R> && IsIteratorAvailable<W, S>
     constexpr auto zip(const T &p_first_iterable, const W &p_second_iterable)
     {
-        using FirstIterator = decltype(p_first_iterable.cbegin());
-        using SecondIterator = decltype(p_second_iterable.cbegin());
-        auto begin_iterator = ZipIterator<FirstIterator, SecondIterator, R, S>(p_first_iterable.cbegin(), p_second_iterable.cbegin());
-        auto end_iterator = ZipIterator<FirstIterator, SecondIterator, R, S>(p_first_iterable.cend(), p_second_iterable.cend());
-        return IteratorWrapper<ZipIterator<FirstIterator, SecondIterator, R, S>, typename ZipIterator<FirstIterator, SecondIterator, R, S>::ValueType>(begin_iterator, end_iterator);
+        return zip(p_first_iterable.cbegin(), p_first_iterable.cend(), p_second_iterable.cbegin(), p_second_iterable.cend());
     }
 
     template <class T, class W, class R = typename T::ValueType &, class S = typename W::ValueType &>
@@ -189,14 +195,20 @@ namespace Rong
     };
 
     template <class T, class W, class R = typename T::ValueType &, class S = typename W::ValueType &>
+        requires IsForwardIterator<T, R> && IsForwardIterator<W, S>
+    inline auto accessible_zip(T &&p_first_begin_iterator, T &&p_first_end_iterator, W &&p_second_begin_iterator, W &&p_second_end_iterator)
+    {
+        using Iterator = AccessibleZipIterator<T, W, R, S>;
+        auto begin_iterator = Iterator(forward<T>(p_first_begin_iterator), forward<W>(p_second_begin_iterator));
+        auto end_iterator = Iterator(forward<T>(p_first_end_iterator), forward<W>(p_second_end_iterator));
+        return AccessibleIteratorWrapper<Iterator, typename Iterator::ValueType>(begin_iterator, end_iterator);
+    }
+
+    template <class T, class W, class R = typename T::ValueType &, class S = typename W::ValueType &>
         requires IsIteratorAccessible<T, R> && IsIteratorAccessible<W, S>
     inline auto accessible_zip(T &p_first_iterable, W &p_second_iterable)
     {
-        using FirstIterator = decltype(p_first_iterable.begin());
-        using SecondIterator = decltype(p_second_iterable.begin());
-        auto begin_iterator = AccessibleZipIterator<FirstIterator, SecondIterator, R, S>(p_first_iterable.begin(), p_second_iterable.begin());
-        auto end_iterator = AccessibleZipIterator<FirstIterator, SecondIterator, R, S>(p_first_iterable.end(), p_second_iterable.end());
-        return AccessibleIteratorWrapper<AccessibleZipIterator<FirstIterator, SecondIterator, R, S>, typename AccessibleZipIterator<FirstIterator, SecondIterator, R, S>::ValueType>(begin_iterator, end_iterator);
+        return accessible_zip(p_first_iterable.begin(), p_first_iterable.end(), p_second_iterable.begin(), p_second_iterable.end());
     }
 
 #ifdef FEATURE_ASSERTION
