@@ -284,7 +284,7 @@ namespace Rong
             count = p_count;
         }
 
-        List(const List<ValueType> &p_list) : data(nullptr), count(0), capacity(0)
+        List(const List &p_list) : data(nullptr), count(0), capacity(0)
         {
             reserve(p_list.count);
             for (U i = 0; i < p_list.count; i++)
@@ -292,7 +292,7 @@ namespace Rong
             count = p_list.count;
         }
 
-        List(List<ValueType> &&p_list) : data(0), count(0), capacity(0)
+        List(List &&p_list) : data(0), count(0), capacity(0)
         {
             clean();
 
