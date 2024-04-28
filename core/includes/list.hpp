@@ -6,6 +6,7 @@
 #include "def.hpp"
 #include "exception.hpp"
 #include "iterator.hpp"
+#include "allocator.hpp"
 
 namespace Rong
 {
@@ -20,7 +21,7 @@ namespace Rong
         IsDataAvailable<T> &&
         IsIteratorAvailable<T>;
 
-    template <class T>
+    template <class T, class A = Allocator<T>>
     class List;
 
     template <class T>
@@ -201,7 +202,7 @@ namespace Rong
         inline auto concat(const V &p_list) const -> List<ValueType> { return Rong::list_concat(*this, p_list); }
     };
 
-    template <class T>
+    template <class T, class A>
     class List
     {
     public:
@@ -317,7 +318,7 @@ namespace Rong
             auto new_capacity = capacity == 0 ? INITIAL_CAPACITY : capacity;
             while (new_capacity < p_min_capacity)
                 new_capacity *= 2;
-            auto new_data = new ValueType[new_capacity];
+            auto new_data = A::allocate(new_capacity);
             auto new_count = count;
 
             for (U i = 0; i < count; i++)
@@ -333,7 +334,12 @@ namespace Rong
         auto clean() -> void
         {
             if (data != nullptr && capacity != 0)
-                delete[] data;
+            {
+                for (U i = 0; i < count; i++)
+                    data[i].~ValueType();
+                A::deallocate(data);
+            }
+            data = nullptr;
             capacity = 0;
             count = 0;
         }
