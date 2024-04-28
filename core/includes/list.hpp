@@ -291,8 +291,14 @@ namespace Rong
             count = p_list.count;
         }
 
-        List(List<ValueType> &&p_list) : data(p_list.data), count(p_list.count), capacity(p_list.capacity)
+        List(List<ValueType> &&p_list) : data(0), count(0), capacity(0)
         {
+            clean();
+
+            data = p_list.data;
+            count = p_list.count;
+            capacity = p_list.capacity;
+
             p_list.data = nullptr;
             p_list.count = 0;
             p_list.capacity = 0;
