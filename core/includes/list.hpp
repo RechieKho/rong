@@ -45,14 +45,6 @@ namespace Rong
         return ListView<typename T::ValueType>(new_data, new_count);
     }
 
-    template <IsListBaseFeaturesAvailable T>
-    constexpr auto list_view_element(const T &p_list, const typename T::KeyType &p_index) -> const T::ValueType &
-    {
-        if (p_index >= p_list.get_count())
-            throw Exception<LOGICAL>("Given index is beyond list's element count.");
-        return p_list.view_data()[p_index];
-    }
-
     template <IsListBaseFeaturesAvailable T, IsListBaseFeaturesAvailable W>
         requires IsSame<typename T::ValueType, typename W::ValueType>
     constexpr auto list_equal(const T &p_left, const W &p_right) -> B
@@ -145,19 +137,15 @@ namespace Rong
 
     public:
         constexpr ListIterator(const ContainerType &p_container, KeyType p_starting_key = 0) : container(p_container), current_key(move(p_starting_key)) {}
-        constexpr auto operator*() const -> const ValueType & { return container.view_data()[current_key]; }
+        constexpr auto operator*() const -> const ValueType & { return container[current_key]; }
         constexpr auto operator++() -> ListIterator &
         {
-            if (current_key > container.get_count())
-                throw Exception<LOGICAL>("Iteration is completed.");
             ++current_key;
             return *this;
         }
         constexpr auto operator==(const ListIterator &p_right) const -> B { return &container == &p_right.container && current_key == p_right.current_key; }
         constexpr auto operator--() -> ListIterator &
         {
-            if (current_key == 0)
-                throw Exception<LOGICAL>("Iteration is completed.");
             --current_key;
             return *this;
         }
@@ -183,7 +171,6 @@ namespace Rong
         constexpr auto get_count() const -> U { return count; }
 
         operator List<ValueType>() const { return List<ValueType>(data, count); }
-        constexpr auto operator[](const KeyType &p_index) const -> const ValueType & { return Rong::list_view_element(*this, p_index); }
         constexpr auto operator==(const ListView &p_right) const -> B { return Rong::list_equal(*this, p_right); }
         constexpr auto operator==(const List<ValueType> &p_right) const -> B { return Rong::list_equal(*this, p_right); }
 
@@ -200,6 +187,13 @@ namespace Rong
         inline auto filter(const C &p_callable) const -> List<ValueType> { return Rong::list_filter(*this, p_callable); }
         template <class V>
         inline auto concat(const V &p_list) const -> List<ValueType> { return Rong::list_concat(*this, p_list); }
+
+        constexpr auto operator[](const KeyType &p_index) const -> const ValueType &
+        {
+            if (p_index >= count)
+                throw Exception<LOGICAL>("Given index is beyond list's element count.");
+            return data[p_index];
+        }
     };
 
     template <class T, class A>
@@ -230,19 +224,15 @@ namespace Rong
 
         public:
             inline AccessibleIterator(ContainerType &p_container, KeyType p_starting_key = 0) : container(p_container), current_key(move(p_starting_key)) {}
-            inline auto operator*() -> ValueType & { return container.data[current_key]; }
+            inline auto operator*() -> ValueType & { return container[current_key]; }
             inline auto operator++() -> AccessibleIterator &
             {
-                if (current_key > container.count)
-                    throw Exception<LOGICAL>("Iteration is completed.");
                 ++current_key;
                 return *this;
             }
             inline auto operator==(const AccessibleIterator &p_right) const -> B { return &container == &p_right.container && current_key == p_right.current_key; }
             inline auto operator--() -> AccessibleIterator &
             {
-                if (current_key == 0)
-                    throw Exception<LOGICAL>("Iteration is completed.");
                 --current_key;
                 return *this;
             }
@@ -256,7 +246,6 @@ namespace Rong
         inline auto get_capacity() const -> U { return capacity; }
 
         operator ListView<ValueType>() const { return ListView<ValueType>(data, count); }
-        inline auto operator[](const KeyType &p_index) const -> const ValueType & { return Rong::list_view_element(*this, p_index); }
         constexpr auto operator==(const List &p_right) const -> B { return Rong::list_equal(*this, p_right); }
         constexpr auto operator==(const ListView<ValueType> &p_right) const -> B { return Rong::list_equal(*this, p_right); }
 
@@ -313,6 +302,13 @@ namespace Rong
         ~List()
         {
             clean();
+        }
+
+        inline auto operator[](const KeyType &p_index) const -> ValueType &
+        {
+            if (p_index >= count)
+                throw Exception<LOGICAL>("Given index is beyond list's element count.");
+            return data[p_index];
         }
 
         auto reserve(U p_min_capacity) -> void
@@ -424,7 +420,7 @@ namespace Rong
     static_assert(IsEqualAvailable<List<X>, List<X>>, "`List::operator==` is malformed.");
     static_assert(IsEqualAvailable<List<X>, ListView<X>>, "`List::operator==` is malformed.");
     static_assert(IsSliceAvailable<List<X>, ListView<X>>, "`List::slice` is malformed.");
-    static_assert(IsIndexAvailable<List<X>>, "`List::operator[]` is malformed.");
+    static_assert(IsIndexAvailable<List<X>, typename List<X>::ValueType &>, "`List::operator[]` is malformed.");
     static_assert(IsContainsAvailable<List<X>>, "`List::contains` is malformed.");
     static_assert(IsForEachAvailable<List<X>, Function<void, List<X>::KeyType, List<X>::ValueType>>, "`List::for_each` is malformed.");
     static_assert(IsMapAvailable<Y, List<X>, Function<Y, List<X>::KeyType, List<X>::ValueType>, List<Y>>, "`List::map` is malformed.");
