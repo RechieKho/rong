@@ -282,9 +282,8 @@ namespace Rong
         List(const List &p_list) : data(nullptr), count(0), capacity(0)
         {
             reserve(p_list.count);
-            for (U i = 0; i < p_list.count; i++)
-                data[i] = p_list.data[i];
-            count = p_list.count;
+            for (auto it = p_list.cbegin(); it != p_list.cend(); ++it)
+                append(*it);
         }
 
         List(List &&p_list) : data(0), count(0), capacity(0)
