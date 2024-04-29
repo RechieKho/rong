@@ -214,6 +214,13 @@ namespace Rong
     };
 
     template <class T, class W>
+    concept IsNotEqualAvailable = requires(const T &p_left, const W &p_right) {
+        {
+            p_left == p_right
+        } -> IsSame<B>;
+    };
+
+    template <class T, class W>
     concept IsGreaterAvailable = requires(const T &p_left, const W &p_right) {
         {
             p_left > p_right
@@ -242,7 +249,7 @@ namespace Rong
     };
 
     template <class T, class W>
-    concept IsComparable = IsEqualAvailable<T, W> && IsGreaterAvailable<T, W> && IsGreaterEqualAvailable<T, W> && IsLessAvailable<T, W> && IsLessEqualAvailable<T, W>;
+    concept IsComparable = IsEqualAvailable<T, W> && IsNotEqualAvailable<T, W> && IsGreaterAvailable<T, W> && IsGreaterEqualAvailable<T, W> && IsLessAvailable<T, W> && IsLessEqualAvailable<T, W>;
 
     template <class T, class W = T>
     concept IsSliceAvailable = IsKeyTypeAvailable<T> && requires(const T &p_object, const T::KeyType &p_begin, const T::KeyType &p_end) {
