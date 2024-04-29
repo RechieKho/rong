@@ -252,6 +252,19 @@ namespace Rong
     concept IsComparable = IsEqualAvailable<T, W> && IsNotEqualAvailable<T, W> && IsGreaterAvailable<T, W> && IsGreaterEqualAvailable<T, W> && IsLessAvailable<T, W> && IsLessEqualAvailable<T, W>;
 
     template <class T, class W = T>
+    auto contrast(T p_left, W p_right) -> I
+    {
+        return static_cast<I>(p_left - p_right);
+    }
+
+    template <class T, class W = T>
+    concept IsConstrastAvailable = requires(const T &p_left, const W &p_right) {
+        {
+            contrast(p_left, p_right)
+        } -> IsSame<I>;
+    };
+
+    template <class T, class W = T>
     concept IsSliceAvailable = IsKeyTypeAvailable<T> && requires(const T &p_object, const T::KeyType &p_begin, const T::KeyType &p_end) {
         {
             p_object.slice(p_begin, p_end)

@@ -47,28 +47,30 @@ namespace Rong
 
     template <IsListBaseFeaturesAvailable T, IsListBaseFeaturesAvailable W>
         requires IsSame<typename T::ValueType, typename W::ValueType>
-    constexpr auto list_equal(const T &p_left, const W &p_right) -> B
+    constexpr auto contrast(const T &p_left, const W &p_right) -> I
     {
-        if (p_left.get_count() != p_right.get_count())
-            return false;
+        const auto count_contrast = p_left.get_count() - p_right.get_count();
+        if (count_contrast != 0)
+            return count_contrast;
 
         auto iterable = zip(p_left, p_right);
         for (auto it = iterable.cbegin(); it != iterable.cend(); ++it)
         {
             auto [first, second] = *it;
-            if (first != second)
-                return false;
+            const auto element_contrast = contrast(first, second);
+            if (element_contrast != 0)
+                return element_contrast;
         }
 
-        return true;
+        return 0;
     }
 
     template <IsListBaseFeaturesAvailable T>
-        requires IsEqualAvailable<typename T::ValueType, typename T::ValueType>
+        requires IsConstrastAvailable<typename T::ValueType, typename T::ValueType>
     constexpr auto list_contains(const T &p_list, const typename T::ValueType &p_thing) -> B
     {
         for (auto it = p_list.cbegin(); it != p_list.cend(); ++it)
-            if (*it == p_thing)
+            if (contrast(*it, p_thing) == 0)
                 return true;
         return false;
     }
@@ -172,8 +174,8 @@ namespace Rong
         constexpr auto get_count() const -> U { return count; }
 
         operator List<ValueType>() const { return List<ValueType>(data, count); }
-        constexpr auto operator==(const ListView &p_right) const -> B { return Rong::list_equal(*this, p_right); }
-        constexpr auto operator==(const List<ValueType> &p_right) const -> B { return Rong::list_equal(*this, p_right); }
+        constexpr auto operator==(const ListView &p_right) const -> B { return contrast(*this, p_right) == 0; }
+        constexpr auto operator==(const List<ValueType> &p_right) const -> B { return contrast(*this, p_right) == 0; }
 
         constexpr auto slice(const KeyType &p_begin_index, const KeyType &p_end_index) const -> ListView { return Rong::list_slice(*this, p_begin_index, p_end_index); }
         constexpr auto contains(const ValueType &p_thing) const -> B { return Rong::list_contains(*this, p_thing); }
@@ -248,8 +250,8 @@ namespace Rong
         inline auto get_capacity() const -> U { return capacity; }
 
         operator ListView<ValueType>() const { return ListView<ValueType>(data, count); }
-        constexpr auto operator==(const List &p_right) const -> B { return Rong::list_equal(*this, p_right); }
-        constexpr auto operator==(const ListView<ValueType> &p_right) const -> B { return Rong::list_equal(*this, p_right); }
+        constexpr auto operator==(const List &p_right) const -> B { return contrast(*this, p_right) == 0; }
+        constexpr auto operator==(const ListView<ValueType> &p_right) const -> B { return contrast(*this, p_right) == 0; }
 
         inline auto slice(const KeyType &p_begin_index, const KeyType &p_end_index) const -> ListView<ValueType> { return Rong::list_slice(*this, p_begin_index, p_end_index); }
         inline auto contains(const ValueType &p_thing) const -> B { return Rong::list_contains(*this, p_thing); }
