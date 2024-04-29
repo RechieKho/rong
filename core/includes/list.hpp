@@ -288,14 +288,8 @@ namespace Rong
                 append(*it);
         }
 
-        List(List &&p_list) : data(0), count(0), capacity(0)
+        List(List &&p_list) : data(p_list.data), count(p_list.count), capacity(p_list.capacity)
         {
-            clean();
-
-            data = p_list.data;
-            count = p_list.count;
-            capacity = p_list.capacity;
-
             p_list.data = nullptr;
             p_list.count = 0;
             p_list.capacity = 0;
@@ -318,20 +312,20 @@ namespace Rong
             if (p_min_capacity < capacity)
                 return;
 
-            auto new_capacity = capacity == 0 ? INITIAL_CAPACITY : capacity;
-            while (new_capacity < p_min_capacity)
-                new_capacity *= 2;
-            auto new_data = A::allocate(new_capacity);
-            auto new_count = count;
-
-            for (U i = 0; i < count; i++)
-                new_data[i] = move(data[i]);
+            auto list = List(p_min_capacity);
+            list.count = count;
+            for (auto [target, source] : accessible_zip(list, *this))
+                target = move(source);
 
             clean();
 
-            data = new_data;
-            capacity = new_capacity;
-            count = new_count;
+            data = list.data;
+            count = list.count;
+            capacity = list.capacity;
+
+            list.data = nullptr;
+            list.count = 0;
+            list.capacity = 0;
         }
 
         auto clean() -> void
