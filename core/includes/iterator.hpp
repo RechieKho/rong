@@ -153,7 +153,7 @@ namespace Rong
             ++second;
             return *this;
         }
-        inline auto operator==(const ZipIterator &p_right) const -> B { return first == p_right.first || second == p_right.second; }
+        constexpr auto operator==(const ZipIterator &p_right) const -> B { return first == p_right.first || second == p_right.second; }
     };
 
     template <class T, class W, class R = const typename T::ValueType &, class S = const typename W::ValueType &>
@@ -208,7 +208,7 @@ namespace Rong
 
     template <class T, class W, class R = typename T::ValueType &, class S = typename W::ValueType &>
         requires IsIteratorAccessible<T, R> && IsIteratorAccessible<W, S>
-    inline auto accessible_zip(T &&p_first_iterable, W &&p_second_iterable)
+    inline auto accessible_zip(T &p_first_iterable, W &p_second_iterable)
     {
         return accessible_zip(p_first_iterable.begin(), p_first_iterable.end(), p_second_iterable.begin(), p_second_iterable.end());
     }
@@ -231,7 +231,7 @@ namespace Rong
             --iterator;
             return *this;
         }
-        inline auto operator==(const ReverseIterator &p_right) const -> B { return iterator == p_right.iterator; }
+        constexpr auto operator==(const ReverseIterator &p_right) const -> B { return iterator == p_right.iterator; }
     };
 
     template <class T, class R = const typename T::ValueType &>
