@@ -266,22 +266,24 @@ namespace Rong
         template <class V>
         inline auto concat(const V &p_list) const -> List<ValueType> { return Rong::list_concat(*this, p_list); }
 
-        List(U p_capacity) : data(nullptr), count(0), capacity(0)
+        List(U p_min_capacity) : data(nullptr), count(0), capacity(0)
         {
-            reserve(p_capacity);
+            auto new_capacity = capacity == 0 ? INITIAL_CAPACITY : capacity;
+            while (new_capacity < p_min_capacity)
+                new_capacity *= 2;
+            data = A::allocate(new_capacity);
+            capacity = new_capacity;
         }
 
-        List(const ValueType *p_data, U p_count) : data(nullptr), count(0), capacity(0)
+        List(const ValueType *p_data, U p_count) : List(p_count)
         {
-            reserve(p_count);
             for (U i = 0; i < p_count; i++)
                 data[i] = p_data[i];
             count = p_count;
         }
 
-        List(const List &p_list) : data(nullptr), count(0), capacity(0)
+        List(const List &p_list) : List(p_list.count)
         {
-            reserve(p_list.count);
             for (auto it = p_list.cbegin(); it != p_list.cend(); ++it)
                 append(*it);
         }
