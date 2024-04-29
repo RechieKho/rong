@@ -149,6 +149,7 @@ namespace Rong
             --current_key;
             return *this;
         }
+        constexpr auto operator+(KeyType p_increment) const -> ListIterator { return ListIterator(container, current_key + p_increment); }
     };
 
     template <class T>
