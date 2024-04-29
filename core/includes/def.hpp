@@ -206,49 +206,49 @@ namespace Rong
         } -> IsSame<T>;
     };
 
-    template <class T, class W>
+    template <class T, class W = T>
     concept IsEqualAvailable = requires(const T &p_left, const W &p_right) {
         {
             p_left == p_right
         } -> IsSame<B>;
     };
 
-    template <class T, class W>
+    template <class T, class W = T>
     concept IsNotEqualAvailable = requires(const T &p_left, const W &p_right) {
         {
             p_left == p_right
         } -> IsSame<B>;
     };
 
-    template <class T, class W>
+    template <class T, class W = T>
     concept IsGreaterAvailable = requires(const T &p_left, const W &p_right) {
         {
             p_left > p_right
         } -> IsSame<B>;
     };
 
-    template <class T, class W>
+    template <class T, class W = T>
     concept IsGreaterEqualAvailable = requires(const T &p_left, const W &p_right) {
         {
             p_left >= p_right
         } -> IsSame<B>;
     };
 
-    template <class T, class W>
+    template <class T, class W = T>
     concept IsLessAvailable = requires(const T &p_left, const W &p_right) {
         {
             p_left < p_right
         } -> IsSame<B>;
     };
 
-    template <class T, class W>
+    template <class T, class W = T>
     concept IsLessEqualAvailable = requires(const T &p_left, const W &p_right) {
         {
             p_left <= p_right
         } -> IsSame<B>;
     };
 
-    template <class T, class W>
+    template <class T, class W = T>
     concept IsComparable = IsEqualAvailable<T, W> && IsNotEqualAvailable<T, W> && IsGreaterAvailable<T, W> && IsGreaterEqualAvailable<T, W> && IsLessAvailable<T, W> && IsLessEqualAvailable<T, W>;
 
     template <class T, class W = T>
