@@ -337,8 +337,8 @@ namespace Rong
         {
             if (data != nullptr && capacity != 0)
             {
-                for (U i = 0; i < count; i++)
-                    data[i].~ValueType();
+                for (auto element : *this)
+                    element.~ValueType();
                 A::deallocate(data);
             }
             data = nullptr;
