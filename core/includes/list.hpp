@@ -236,6 +236,7 @@ namespace Rong
                 --current_key;
                 return *this;
             }
+            inline auto operator+(KeyType p_increment) const -> AccessibleIterator { return AccessibleIterator(container, current_key + p_increment); }
         };
 
     public:
@@ -350,10 +351,14 @@ namespace Rong
             if (p_index > count)
                 throw Exception<LOGICAL>("Given index is out of bound.");
             reserve(capacity + 1);
-            for (U i = count; i > p_index + 1; i--)
-                data[i] = move(data[i - 1]);
-            data[p_index] = p_thing;
             count++;
+
+            auto target_iterable = accessible_reverse(begin() + p_index + 1, end());
+            auto source_iterable = accessible_reverse(begin() + p_index, --end());
+            for (auto [target, source] : accessible_zip(target_iterable, source_iterable))
+                target = move(source);
+
+            data[p_index] = p_thing;
         }
 
         auto append(const ValueType &p_thing) -> void
@@ -375,8 +380,13 @@ namespace Rong
                 throw Exception<LOGICAL>("Impossible to remove item from empty list.");
 
             auto popped = move(data[p_index]);
-            for (U i = p_index; i < count - 1; i++)
-                data[i] = move(data[i + 1]);
+
+            auto iterable = accessible_zip(
+                begin() + p_index, --end(),
+                begin() + p_index + 1, end());
+            for (auto [target, source] : iterable)
+                target = move(source);
+
             count--;
             return popped;
         }

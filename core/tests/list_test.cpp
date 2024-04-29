@@ -76,3 +76,33 @@ TEST_CASE("List equality")
     REQUIRE(view != view2);
     REQUIRE(view == view3);
 }
+
+TEST_CASE("List Insertion")
+{
+    constexpr auto data = "Hello";
+    constexpr auto count = 5;
+    auto list = List(data, count);
+
+    constexpr auto data2 = "Helllo";
+    constexpr auto count2 = 6;
+    constexpr auto view = ListView(data2, count2);
+
+    list.insert(2, 'l');
+
+    REQUIRE(list == view);
+}
+
+TEST_CASE("List Removal")
+{
+    constexpr auto data = "Helllo";
+    constexpr auto count = 6;
+    auto list = List(data, count);
+
+    constexpr auto data2 = "Hello";
+    constexpr auto count2 = 5;
+    constexpr auto view = ListView(data2, count2);
+
+    list.remove(2);
+
+    REQUIRE(list == view);
+}
