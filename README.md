@@ -1,3 +1,3 @@
 # Rong
 
-A 2D game engine targeting desktop.
+A C++ playground to test out C++20.
