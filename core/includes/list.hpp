@@ -21,7 +21,7 @@ namespace Rong
         IsDataAvailable<T> &&
         IsIteratorAvailable<T>;
 
-    template <class T, class A = Allocator<T>>
+    template <class T, template <class E> class A = Allocator>
     class List;
 
     template <class T>
@@ -199,13 +199,14 @@ namespace Rong
         }
     };
 
-    template <class T, class A>
+    template <class T, template <class E> class A>
     class List
     {
     public:
         using KeyType = U;
         using ValueType = T;
         using ElementType = ValueType;
+        using Allocator = A<ElementType>;
         static constexpr const U INITIAL_CAPACITY = 16;
 
     private:
@@ -274,7 +275,7 @@ namespace Rong
             auto new_capacity = capacity == 0 ? INITIAL_CAPACITY : capacity;
             while (new_capacity < p_min_capacity)
                 new_capacity *= 2;
-            data = A::allocate(new_capacity);
+            data = Allocator::allocate(new_capacity);
             capacity = new_capacity;
         }
 
@@ -337,7 +338,7 @@ namespace Rong
             {
                 for (auto element : *this)
                     element.~ValueType();
-                A::deallocate(data);
+                Allocator::deallocate(data);
             }
             data = nullptr;
             capacity = 0;
