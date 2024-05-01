@@ -7,6 +7,7 @@
 namespace Rong
 {
 
+    /// Allocator only handles memory allocation, but not initialization and deinitialization.
     template <class T, class R>
     concept IsAllocatorFeaturesAvailable = requires(R *p_pointer, U p_count) {
         {

@@ -5,10 +5,7 @@ using namespace Rong;
 
 TEST_CASE("Leash base feature.")
 {
-    auto x = Leash<X>::spawn();
-    REQUIRE(x);
-    x.clean();
-    REQUIRE(!x);
-    x.instantiate();
-    REQUIRE(x);
+    auto data = Allocator<X>::allocate();
+    auto x = Leash(data);
+    REQUIRE(*x == data);
 }

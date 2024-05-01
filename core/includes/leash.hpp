@@ -6,12 +6,21 @@
 
 namespace Rong
 {
+    /// Function to deinitialize and deallocate.
+    template <class T>
+    using LeashDestroyFunction = Function<void, T *>;
+
     template <class T, class A = Allocator<T>>
-        requires IsAllocatorFeaturesAvailable<A, T>
+    auto leash_default_destroy(T *p_pointer) -> void
+    {
+        p_pointer->~T();
+        A::deallocate(p_pointer);
+    }
+
+    template <class T, LeashDestroyFunction<T> A = leash_default_destroy<T>>
     class Leash;
 
-    template <class T, class A>
-        requires IsAllocatorFeaturesAvailable<A, T>
+    template <class T, LeashDestroyFunction<T> A>
     class Leash
     {
     public:
@@ -21,17 +30,16 @@ namespace Rong
         ValueType *value_pointer;
 
     public:
-        template <class... W>
-        static auto spawn(W... p_arguments) -> Leash
-        {
-            auto leash = Leash();
-            leash.instantiate(p_arguments...);
-            return leash;
-        }
-
-        constexpr Leash() : value_pointer(nullptr) {}
+        Leash(ValueType *p_value_pointer) : value_pointer(p_value_pointer) {}
         Leash(const Leash &p_leash) = delete;
         Leash(Leash &&p_leash) : value_pointer(p_leash.value_pointer) { p_leash.value_pointer = nullptr; }
+
+        ~Leash()
+        {
+            if (value_pointer != nullptr)
+                A(value_pointer);
+            value_pointer = nullptr;
+        }
 
         inline operator B() { return value_pointer != nullptr; }
         inline auto operator->() -> ValueType * { return value_pointer; }
@@ -39,23 +47,6 @@ namespace Rong
         inline auto operator*() -> ValueType * { return value_pointer; }
         inline auto operator*() const -> const ValueType * { return value_pointer; }
         inline auto operator==(const Leash &p_leash) const -> B { return value_pointer == p_leash.value_pointer; }
-
-        template <class... W>
-        inline auto instantiate(W... p_arguments) -> void
-        {
-            value_pointer = A::allocate();
-            *value_pointer = ValueType(p_arguments...);
-        }
-
-        inline auto clean() -> void
-        {
-            if (value_pointer != nullptr)
-            {
-                value_pointer->~ValueType();
-                A::deallocate(value_pointer);
-            }
-            value_pointer = nullptr;
-        }
     };
 } // namespace Rong
 
