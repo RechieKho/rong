@@ -306,11 +306,16 @@ namespace Rong
             clean();
         }
 
-        inline auto operator[](const KeyType &p_index) const -> ValueType &
+        inline auto operator[](const KeyType &p_index) -> ValueType &
         {
             if (p_index >= count)
                 throw Exception<LOGICAL>("Given index is beyond list's element count.");
             return data[p_index];
+        }
+
+        inline auto operator[](const KeyType &p_index) const -> const ValueType &
+        {
+            return (*this)[p_index];
         }
 
         auto reserve(Size p_min_capacity) -> void
