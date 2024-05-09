@@ -73,6 +73,36 @@ namespace Rong
         using Type = T;
     };
 
+    template <class T>
+    struct Constantless : Inconstructible
+    {
+        using Type = T;
+    };
+
+    template <class T>
+    struct Constantless<const T> : Inconstructible
+    {
+        using Type = T;
+    };
+
+    template <class T>
+    struct Volatileless : Inconstructible
+    {
+        using Type = T;
+    };
+
+    template <class T>
+    struct Volatileless<volatile T> : Inconstructible
+    {
+        using Type = T;
+    };
+
+    template <class T>
+    struct Pure : Inconstructible
+    {
+        using Type = Volatileless<typename Constantless<typename Referenceless<T>::Type>::Type>::Type;
+    };
+
     template <class... T>
     struct Parameters : Inconstructible
     {
@@ -141,6 +171,21 @@ namespace Rong
             To(p_object)
         } -> IsSame<To>;
     };
+
+    template <class T>
+    concept IsInteger = requires(T p_number, T *p_pointer, Function<void, T> &p_function) {
+        reinterpret_cast<T>(p_number); // Classes cannot be `reinterpret_cast`ed, only integers such as pointer.
+        p_function(0);                 // Enumeration cannot take integer literals.
+        p_pointer + p_number;          // Pointer arithmatics must only involves an integer and a pointer.
+    };
+
+    template <class T>
+    concept IsFloat =
+        IsSame<F32, typename Pure<T>::Type> &&
+        IsSame<F64, typename Pure<T>::Type>;
+
+    template <class T>
+    concept IsNumber = IsInteger<T> || IsFloat<T>;
 
     template <class R, class T, class... Args>
     concept IsFunction = requires(const T &p_object, Args... p_items) {
@@ -251,7 +296,7 @@ namespace Rong
     template <class T, class W = T>
     concept IsComparable = IsEqualAvailable<T, W> && IsNotEqualAvailable<T, W> && IsGreaterAvailable<T, W> && IsGreaterEqualAvailable<T, W> && IsLessAvailable<T, W> && IsLessEqualAvailable<T, W>;
 
-    template <class T, class W = T>
+    template <IsNumber T, IsNumber W = T>
     auto contrast(T p_left, W p_right) -> I
     {
         return static_cast<I>(p_left - p_right);
