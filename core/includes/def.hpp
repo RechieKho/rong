@@ -18,6 +18,8 @@ namespace Rong
     using U64 = uint64_t;
     using U = U32;
 
+    using Size = U64;
+
     using F32 = float;
     using F64 = double;
     using F = F32;
@@ -110,7 +112,7 @@ namespace Rong
         using Apply = W<T...>;
     };
 
-    template <U Index, class T, class... W>
+    template <Size Index, class T, class... W>
     struct TypeAt : Inconstructible
     {
         static_assert(Index < (sizeof...(W) + 1), "Given index is beyond parameter pack's count.");
@@ -136,20 +138,20 @@ namespace Rong
     struct TypeIndex : Inconstructible
     {
     private:
-        template <U Index, class TargetType, class CurrentType, class... RestTypes>
+        template <Size Index, class TargetType, class CurrentType, class... RestTypes>
         struct IndexCounter : Inconstructible
         {
-            static constexpr U INDEX = IndexCounter<Index + 1, TargetType, RestTypes...>::INDEX;
+            static constexpr Size INDEX = IndexCounter<Index + 1, TargetType, RestTypes...>::INDEX;
         };
 
-        template <U Index, class TargetType, class... RestTypes>
+        template <Size Index, class TargetType, class... RestTypes>
         struct IndexCounter<Index, TargetType, TargetType, RestTypes...> : Inconstructible
         {
-            static constexpr U INDEX = Index;
+            static constexpr Size INDEX = Index;
         };
 
     public:
-        static constexpr U INDEX = IndexCounter<0, T, W...>::INDEX;
+        static constexpr Size INDEX = IndexCounter<0, T, W...>::INDEX;
     };
 
     template <class T, class V>
@@ -220,14 +222,14 @@ namespace Rong
     concept IsCountAccessible = requires(const T &p_object) {
         {
             p_object.count
-        } -> IsSame<U>;
+        } -> IsSame<Size>;
     };
 
     template <class T>
     concept IsCountAvailable = requires(const T &p_object) {
         {
             p_object.get_count()
-        } -> IsSame<U>;
+        } -> IsSame<Size>;
     };
 
     template <class T>
@@ -245,7 +247,7 @@ namespace Rong
     };
 
     template <class T>
-    concept IsConstructableFromSpan = IsValueTypeAvailable<T> && requires(const T::ValueType *p_pointer, U p_count) {
+    concept IsConstructableFromSpan = IsValueTypeAvailable<T> && requires(const T::ValueType *p_pointer, Size p_count) {
         {
             T(p_pointer, p_count)
         } -> IsSame<T>;
@@ -394,18 +396,18 @@ namespace Rong
     concept IsCapacityAvailable = requires(const T &p_object) {
         {
             p_object.get_capacity()
-        } -> IsSame<U>;
+        } -> IsSame<Size>;
     };
 
     template <class T>
     concept IsCapacityAccessible = requires(const T &p_object) {
         {
             p_object.capacity
-        } -> IsSame<U>;
+        } -> IsSame<Size>;
     };
 
     template <class T>
-    concept IsReserveAvailable = requires(T p_object, U p_min_capacity) {
+    concept IsReserveAvailable = requires(T p_object, Size p_min_capacity) {
         {
             p_object.reserve(p_min_capacity)
         } -> IsSame<void>;
@@ -529,8 +531,8 @@ namespace Rong
     };
 
     template <class T, class C, class R = const typename T::ValueType &>
-        requires IsForwardIterator<T, R> && IsFunction<void, C, U, R>
-    constexpr auto for_each(C &&p_callable, T p_begin, T p_end, U p_index = 0) -> void
+        requires IsForwardIterator<T, R> && IsFunction<void, C, Size, R>
+    constexpr auto for_each(C &&p_callable, T p_begin, T p_end, Size p_index = 0) -> void
     {
         if constexpr (p_begin != p_end)
         {

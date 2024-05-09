@@ -9,7 +9,7 @@ namespace Rong
 
     /// Allocator only handles memory allocation, but not initialization and deinitialization.
     template <class T, class R>
-    concept IsAllocatorFeaturesAvailable = requires(R *p_pointer, U p_count) {
+    concept IsAllocatorFeaturesAvailable = requires(R *p_pointer, Size p_count) {
         {
             T::allocate(p_count)
         } -> IsSame<R *>;
@@ -23,7 +23,7 @@ namespace Rong
     struct Allocator : Inconstructible
     {
         using Type = T;
-        static auto allocate(U p_count = 1) -> Type *
+        static auto allocate(Size p_count = 1) -> Type *
         {
             auto allocated = (Type *)calloc(p_count, sizeof(Type));
             if (allocated == nullptr)

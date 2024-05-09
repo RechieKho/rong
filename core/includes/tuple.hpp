@@ -38,14 +38,14 @@ namespace Rong
     class Tuple : public TupleNode<T...>
     {
     public:
-        template <U Index>
+        template <Size Index>
         using ValueType = TypeAt<Index, T...>::Type;
 
     private:
     public:
         constexpr Tuple(T... p_values) : TupleNode<T...>(p_values...) {}
 
-        template <U Index>
+        template <Size Index>
         constexpr auto get() const -> ValueType<Index>
         {
             return TypeAt<Index, T...>::template Set<TupleNode>::value;

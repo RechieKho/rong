@@ -78,11 +78,11 @@ namespace Rong
     class EnumerateIterator
     {
     public:
-        using ValueType = Pair<U, R>;
+        using ValueType = Pair<Size, R>;
 
     private:
         T iterator;
-        U index;
+        Size index;
 
     public:
         constexpr EnumerateIterator(const T &p_iterator) : iterator(p_iterator), index(0) {}
@@ -108,11 +108,11 @@ namespace Rong
     class AccessibleEnumerateIterator
     {
     public:
-        using ValueType = Pair<U, R>;
+        using ValueType = Pair<Size, R>;
 
     private:
         T iterator;
-        U index;
+        Size index;
 
     public:
         inline AccessibleEnumerateIterator(const T &p_iterator) : iterator(p_iterator), index(0) {}

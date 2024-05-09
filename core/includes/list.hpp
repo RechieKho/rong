@@ -89,7 +89,7 @@ namespace Rong
         auto result = List<R>();
         result.reserve(p_list.get_capacity());
 
-        for_each([&](U p_index, auto p_element)
+        for_each([&](Size p_index, auto p_element)
                  { result.append(p_callable(p_index, p_element)); }, p_list.cbegin(), p_list.cend());
 
         return result;
@@ -102,7 +102,7 @@ namespace Rong
         auto result = List<typename T::ValueType>();
         result.reserve(p_list.get_count());
 
-        for_each([&](U p_index, auto p_element)
+        for_each([&](Size p_index, auto p_element)
                  { if constexpr (p_callable(p_index, p_element)) result.append(p_element); }, p_list.cbegin(), p_list.cend());
 
         return result;
@@ -115,9 +115,9 @@ namespace Rong
         auto result = List<typename T::ValueType>();
         result.reserve(p_left.get_count() + p_right.get_count());
 
-        for_each([&](U p_index, auto p_element)
+        for_each([&](Size p_index, auto p_element)
                  { result.append(p_element); }, p_left.cbegin(), p_left.cend());
-        for_each([&](U p_index, auto p_element)
+        for_each([&](Size p_index, auto p_element)
                  { result.append(p_element); }, p_right.cbegin(), p_right.cend());
 
         return result;
@@ -158,20 +158,20 @@ namespace Rong
     class ListView
     {
     public:
-        using KeyType = U;
+        using KeyType = Size;
         using ValueType = T;
         using ElementType = ValueType;
 
     private:
         const ElementType *data;
-        U count;
+        Size count;
 
     public:
-        constexpr ListView(const ValueType *p_data, U p_count) : data(p_data), count(p_count) {}
+        constexpr ListView(const ValueType *p_data, Size p_count) : data(p_data), count(p_count) {}
         constexpr ListView() : data(nullptr), count(0) {}
 
         constexpr auto view_data() const -> const ValueType * { return data; }
-        constexpr auto get_count() const -> U { return count; }
+        constexpr auto get_count() const -> Size { return count; }
 
         operator List<ValueType>() const { return List<ValueType>(data, count); }
         constexpr auto operator==(const ListView &p_right) const -> B { return contrast(*this, p_right) == 0; }
@@ -203,16 +203,16 @@ namespace Rong
     class List
     {
     public:
-        using KeyType = U;
+        using KeyType = Size;
         using ValueType = T;
         using ElementType = ValueType;
         using Allocator = A<ElementType>;
-        static constexpr const U INITIAL_CAPACITY = 16;
+        static constexpr const Size INITIAL_CAPACITY = 16;
 
     private:
         ElementType *data;
-        U count;
-        U capacity;
+        Size count;
+        Size capacity;
 
     public:
         class AccessibleIterator
@@ -247,8 +247,8 @@ namespace Rong
         constexpr List() : data(nullptr), count(0), capacity(0) {}
 
         inline auto view_data() const -> const ValueType * { return data; }
-        inline auto get_count() const -> U { return count; }
-        inline auto get_capacity() const -> U { return capacity; }
+        inline auto get_count() const -> Size { return count; }
+        inline auto get_capacity() const -> Size { return capacity; }
 
         operator ListView<ValueType>() const { return ListView<ValueType>(data, count); }
         constexpr auto operator==(const List &p_right) const -> B { return contrast(*this, p_right) == 0; }
@@ -270,7 +270,7 @@ namespace Rong
         template <class V>
         inline auto concat(const V &p_list) const -> List<ValueType> { return Rong::list_concat(*this, p_list); }
 
-        List(U p_min_capacity) : data(nullptr), count(0), capacity(0)
+        List(Size p_min_capacity) : data(nullptr), count(0), capacity(0)
         {
             auto new_capacity = capacity == 0 ? INITIAL_CAPACITY : capacity;
             while (new_capacity < p_min_capacity)
@@ -279,9 +279,9 @@ namespace Rong
             capacity = new_capacity;
         }
 
-        List(const ValueType *p_data, U p_count) : List(p_count)
+        List(const ValueType *p_data, Size p_count) : List(p_count)
         {
-            for (U i = 0; i < p_count; i++)
+            for (Size i = 0; i < p_count; i++)
                 data[i] = p_data[i];
             count = p_count;
         }
@@ -311,7 +311,7 @@ namespace Rong
             return data[p_index];
         }
 
-        auto reserve(U p_min_capacity) -> void
+        auto reserve(Size p_min_capacity) -> void
         {
             if (p_min_capacity < capacity)
                 return;
