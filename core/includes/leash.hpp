@@ -41,6 +41,13 @@ namespace Rong
             value_pointer = nullptr;
         }
 
+        inline auto operator=(Leash &&p_leash) -> Leash &
+        {
+            value_pointer = p_leash.value_pointer;
+            p_leash.value_pointer = nullptr;
+            return *this;
+        }
+
         inline operator B() { return value_pointer != nullptr; }
         inline auto operator->() -> ValueType * { return value_pointer; }
         inline auto operator->() const -> const ValueType * { return value_pointer; }

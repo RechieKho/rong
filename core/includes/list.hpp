@@ -315,7 +315,9 @@ namespace Rong
 
         inline auto operator[](const KeyType &p_index) const -> const ValueType &
         {
-            return (*this)[p_index];
+            if (p_index >= count)
+                throw Exception<LOGICAL>("Given index is beyond list's element count.");
+            return data[p_index];
         }
 
         auto reserve(Size p_min_capacity) -> void
@@ -406,13 +408,6 @@ namespace Rong
         {
             return remove(0);
         }
-
-        auto set(const KeyType &p_index, const ValueType &p_thing) -> void
-        {
-            if (p_index >= count)
-                throw Exception<LOGICAL>("Given index is beyond list's element count.");
-            data[p_index] = p_thing;
-        }
     };
 
 #ifdef FEATURE_ASSERTION
@@ -452,7 +447,6 @@ namespace Rong
     static_assert(IsRemoveAvailable<List<X>>, "`List::remove` is malformed.");
     static_assert(IsPopBackAvailable<List<X>>, "`List::pop_back` is malformed.");
     static_assert(IsPopFrontAvailable<List<X>>, "`List::pop_front` is malformed.");
-    static_assert(IsSetAvailable<List<X>>, "`List::set` is malformed.");
     static_assert(IsIteratorAvailable<List<X>>, "`List` iterator is malformed.");
     static_assert(IsIteratorAccessible<List<X>>, "`List` accessible iterator is malformed.");
 #endif // FEATURE_ASSERTION
