@@ -22,6 +22,7 @@ namespace Rong
         IsIteratorAvailable<T>;
 
     template <class T, template <class E> class A = Allocator>
+        requires IsAllocatorFeaturesAvailable<A<X>, X>
     class List;
 
     template <class T>
@@ -200,6 +201,7 @@ namespace Rong
     };
 
     template <class T, template <class E> class A>
+        requires IsAllocatorFeaturesAvailable<A<X>, X>
     class List
     {
     public:
